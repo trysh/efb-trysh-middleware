@@ -107,6 +107,11 @@ class TryshMiddleware(EFBMiddleware):
                     rq = self.get_coin(cmd)
                     if rq != '' and len(rq) == 2:
                         self.reply_message(message, f"{cmd}:{rq[0]}￥ {rq[1]}$")
+            elif txt.upper() in coins:
+                cmd = txt.upper()
+                rq = self.get_coin(cmd)
+                if rq != '' and len(rq) == 2:
+                    self.reply_message(message, f"{cmd}:{rq[0]}￥ {rq[1]}$")
         return message
 
     def reply_message(self, message: EFBMsg, text: str):
