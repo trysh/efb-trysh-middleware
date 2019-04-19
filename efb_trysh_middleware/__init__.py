@@ -90,12 +90,17 @@ class TryshMiddleware(EFBMiddleware):
         #         message, message.author, message.chat, message.type, message.target)
         # if not message.type == MsgType.Text:
         #     return message
+        if message.type == MsgType.Text:
+            if message.text.strip() == 'tq':
+                self.lg(f"chat:{message.chat.module_name}")
+                self.reply_message(message, f"rep:{message.text}")
         return message
 
     def reply_message(self, message: EFBMsg, text: str):
         reply = EFBMsg()
         reply.text = text
-        reply.chat = coordinator.slaves[message.chat.channel_id].get_chat(message.chat.chat_uid)
+        # reply.chat = coordinator.slaves[message.chat.channel_id].get_chat(message.chat.chat_uid)
+        reply.chat = coordinator.slaves[message.chat.module_id].get_chat(message.chat.chat_uid)
         reply.author = self.chat
         reply.type = MsgType.Text
         reply.deliver_to = coordinator.master
