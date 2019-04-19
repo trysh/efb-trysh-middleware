@@ -1,5 +1,6 @@
-EFB GPG Middleware
+copy EFB GPG Middleware
 ==================
+fork: https://github.com/blueset/efb-gpg-middleware
 
 .. image:: https://img.shields.io/pypi/v/efb-gpg-middleware.svg
    :alt: PyPI release
