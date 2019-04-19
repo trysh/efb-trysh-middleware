@@ -1,19 +1,18 @@
 # coding=utf-8
 
+import logging
 import os
 import pickle
-import logging
 import uuid
-from pkg_resources import resource_filename
 from gettext import translation
-from typing import Optional, Dict, Tuple
+from typing import Dict, Optional, Tuple
+
+from ehforwarderbot import ChatType, EFBChat, EFBMiddleware, EFBMsg, MsgType, coordinator, utils
+from ehforwarderbot.exceptions import EFBException
+from pkg_resources import resource_filename
 from ruamel.yaml import YAML
 
-from ehforwarderbot import EFBMiddleware, EFBMsg, utils, MsgType, EFBChat, ChatType, coordinator
-from ehforwarderbot.exceptions import EFBException
-
 from .__version__ import __version__ as version
-
 
 yaml = YAML()
 
@@ -81,10 +80,10 @@ class TryshMiddleware(EFBMiddleware):
         self.logger.debug("trysh init ok")
 
     def process_message(self, message: EFBMsg) -> Optional[EFBMsg]:
-        self.logger.debug("Received message: %s", message)
+        self.logger.debug("Received message: %s |author:%s |chat:%s |type:%s |target:%s",
+                          message, message.author, message.chat, message.type, message.target)
         # if not message.type == MsgType.Text:
         #     return message
-        self.logger.debug("[%s] is a text message.", message.uid)
         return message
 
     def reply_message(self, message: EFBMsg, text: str):
