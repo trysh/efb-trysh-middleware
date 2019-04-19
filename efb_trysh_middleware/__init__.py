@@ -105,8 +105,8 @@ class TryshMiddleware(EFBMiddleware):
                 cmd = txt.upper()[1:]
                 if cmd in coins:
                     rq = self.get_coin(cmd)
-                    if rq != '':
-                        self.reply_message(message, f"{cmd}:{rq}￥")
+                    if rq != '' and len(rq) == 2:
+                        self.reply_message(message, f"{cmd}:{rq[0]}￥ {rq[1]}$")
         return message
 
     def reply_message(self, message: EFBMsg, text: str):
@@ -201,14 +201,16 @@ class TryshMiddleware(EFBMiddleware):
             data = json.loads(response.text)
             # self.lg(f"api:{data}")
             v = data[0] if len(data) >= 1 else {}
-            v = float(v.get('cost', {}).get('cnyRate', 0.0))
-            v = "%.2f" % v if v < 10 else str(int(v))
+            v1 = float(v.get('cost', {}).get('cnyRate', 0.0))
+            v1 = "%.2f" % v1 if v1 < 10 else str(int(v1))
+            v2 = float(v.get('cost', {}).get('usdtRate', 0.0))
+            v2 = "%.2f" % v2 if v2 < 10 else str(int(v2))
             # return f"btc:{data.data.BTC.quote.CNY.price} yo:{data.data.YO.quote.CNY.price}"
             # btcp = int(data.get('data', {}).get('BTC', {}).get('quote', {}).get('CNY', {}).get('price', 0))
             # ethp = int(data.get('data', {}).get('ETH', {}).get('quote', {}).get('CNY', {}).get('price', 0))
             # eosp = int(data.get('data', {}).get('EOS', {}).get('quote', {}).get('CNY', {}).get('price', 0))
             # return f"BTC:{btcp}￥ \nETH:{ethp}￥ \nEOS:{eosp}￥"
-            return v
+            return v1, v2
         except (ConnectionError, requests.Timeout, requests.TooManyRedirects) as e:
             self.lg(f"api e:{e}")
             return ''
