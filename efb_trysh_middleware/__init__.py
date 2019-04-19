@@ -18,30 +18,6 @@ from .__version__ import __version__ as version
 yaml = YAML()
 
 
-def get_quotes(apikey: str):
-    url = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest'
-    parameters = {
-        # 'start': '1',
-        # 'limit': '5000',
-        'symbol': 'BTC,ETH,EOS',
-        'convert': 'CNY',
-    }
-    headers = {
-        # 'Accepts': 'application/json',
-        'X-CMC_PRO_API_KEY': apikey,
-    }
-
-    session = requests.Session()
-    session.headers.update(headers)
-
-    try:
-        response = session.get(url, params=parameters)
-        data = json.loads(response.text)
-        print(data)
-    except (ConnectionError, requests.Timeout, requests.TooManyRedirects) as e:
-        print(e)
-
-
 class TryshMiddleware(EFBMiddleware):
     """
     Configuration:
@@ -124,7 +100,7 @@ class TryshMiddleware(EFBMiddleware):
         #     return message
         if message.type == MsgType.Text:
             if message.text.strip().startswith('/btc'):
-                get_quotes(self.apikey)
+                self.get_quotes()
                 self.reply_message(message, f"rep:{message.text}")
         return message
 
@@ -143,3 +119,26 @@ class TryshMiddleware(EFBMiddleware):
         coordinator.send_message(reply)
         r2.deliver_to = coordinator.master
         coordinator.send_message(r2)
+
+    def get_quotes(self):
+        url = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest'
+        parameters = {
+            # 'start': '1',
+            # 'limit': '5000',
+            'symbol': 'BTC,ETH,EOS',
+            'convert': 'CNY',
+        }
+        headers = {
+            # 'Accepts': 'application/json',
+            'X-CMC_PRO_API_KEY': self.apikey,
+        }
+
+        session = requests.Session()
+        session.headers.update(headers)
+
+        try:
+            response = session.get(url, params=parameters)
+            data = json.loads(response.text)
+            self.lg(f"api:{data}")
+        except (ConnectionError, requests.Timeout, requests.TooManyRedirects) as e:
+            self.lg(f"api e:{e}")

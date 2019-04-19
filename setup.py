@@ -1,6 +1,7 @@
-import sys
 import os
-from setuptools import setup, find_packages
+import sys
+
+from setuptools import find_packages, setup
 
 if sys.version_info < (3, 6):
     raise Exception("Python 3.6 or higher is required. Your version is %s." % sys.version)
@@ -40,6 +41,7 @@ setup(
     ],
     install_requires=[
         "ehforwarderbot",
+        "requests",
         # "python-gnupg"
     ],
     entry_points={
