@@ -99,7 +99,10 @@ class TryshMiddleware(EFBMiddleware):
         # if not message.type == MsgType.Text:
         #     return message
         if message.type == MsgType.Text:
-            if message.text.strip().startswith('/btc'):
+            if message.text.strip().startswith('/btc') \
+                    or message.text.strip().startswith('/eth') \
+                    or message.text.strip().startswith('/eos') \
+                    or message.text.strip().startswith('/hub'):
                 rq = self.get_quotes()
                 if rq != '':
                     self.reply_message(message, f"{rq}")
@@ -146,7 +149,7 @@ class TryshMiddleware(EFBMiddleware):
             ethp = int(data.get('data', {}).get('ETH', {}).get('quote', {}).get('CNY', {}).get('price', 0))
             eosp = int(data.get('data', {}).get('EOS', {}).get('quote', {}).get('CNY', {}).get('price', 0))
             hubp = self.get_hub()
-            return f"HUB:{hubp} \nBTC:{btcp}￥ \nETH:{ethp}￥ \nEOS:{eosp}￥"
+            return f"HUB:{hubp}￥ \nBTC:{btcp}￥ \nETH:{ethp}￥ \nEOS:{eosp}￥"
         except (ConnectionError, requests.Timeout, requests.TooManyRedirects) as e:
             self.lg(f"api e:{e}")
             return ''
