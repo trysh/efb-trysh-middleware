@@ -6,7 +6,7 @@ if sys.version_info < (3, 6):
     raise Exception("Python 3.6 or higher is required. Your version is %s." % sys.version)
 
 version_path = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                            'efb_gpg_middleware/__version__.py')
+                            'efb_trysh_middleware/__version__.py')
 
 __version__ = ""
 exec(open(version_path).read())
@@ -14,19 +14,19 @@ exec(open(version_path).read())
 long_description = open('README.rst').read()
 
 setup(
-    name='efb-gpg-middleware',
+    name='efb-trysh-middleware',
     packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
     version=__version__,
-    description='GPG middleware for EH Forwarder Bot, encrypts and decrypts messages.',
+    description='trysh middleware for EH Forwarder Bot',
     long_description=long_description,
-    author='Eana Hufwe',
-    author_email='ilove@1a23.com',
-    url='https://github.com/blueset/efb-gpg-middleware',
-    license='AGPLv3+',
+    author='trysh',
+    author_email='s2s@s2s.app',
+    url='https://github.com/trysh/efb-trysh-middleware',
+    license='',  # ''AGPLv3+',
     include_package_data=True,
     python_requires='>=3.6',
     keywords=['ehforwarderbot', 'EH Forwarder Bot', 'EH Forwarder Bot Master Channel',
-              'PGP', 'GPG', 'GnuPG'],
+              'PGP', 'trysh', 'GnuPG'],
     classifiers=[
         "Development Status :: 4 - Beta",
         "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
@@ -40,9 +40,9 @@ setup(
     ],
     install_requires=[
         "ehforwarderbot",
-        "python-gnupg"
+        # "python-gnupg"
     ],
     entry_points={
-        "ehforwarderbot.middleware": "blueset.gpg = efb_gpg_middleware:GPGMiddleware"
+        "ehforwarderbot.middleware": "trysh.trysh = efb_trysh_middleware:TryshMiddleware"
     }
 )

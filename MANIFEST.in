@@ -1,1 +1,1 @@
-recursive-include efb_gpg_middleware/locale *.mo *.po
+recursive-include efb_trysh_middleware/locale *.mo *.po

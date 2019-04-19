@@ -14,49 +14,49 @@ msgstr ""
 "X-Generator: crowdin.com\n"
 "X-Crowdin-Project: ehforwarderbot\n"
 "X-Crowdin-Language: ja\n"
-"X-Crowdin-File: /EFBChannels/efb-gpg-middleware/efb_gpg_middleware/locale/efb_gpg_middleware.pot\n"
+"X-Crowdin-File: /EFBChannels/efb-trysh-middleware/efb_trysh_middleware/locale/efb_trysh_middleware.pot\n"
 
-#: efb_gpg_middleware/__init__.py:60
+#: efb_trysh_middleware/__init__.py:60
 msgid "GnuPG middleware is not configured."
 msgstr "GnuPG ミドルウェアはまだ設定されません。"
 
-#: efb_gpg_middleware/__init__.py:95
+#: efb_trysh_middleware/__init__.py:95
 #, python-brace-format
 msgid "This chat has GPG key: {0}"
 msgstr "このチャットの GPG キーは：{0}"
 
-#: efb_gpg_middleware/__init__.py:97
+#: efb_trysh_middleware/__init__.py:97
 msgid "This chat has no GPG key."
 msgstr "このチャットは GPG キーがありません。"
 
-#: efb_gpg_middleware/__init__.py:104
+#: efb_trysh_middleware/__init__.py:104
 msgid "This chat now has no GPG key."
 msgstr "このチャットの GPG キーが削除されました。"
 
-#: efb_gpg_middleware/__init__.py:112
+#: efb_trysh_middleware/__init__.py:112
 msgid "Found the following keys: "
 msgstr "次のキーが見つかりました： "
 
-#: efb_gpg_middleware/__init__.py:118
-msgid "Usage: gpg`search query"
-msgstr "用法：gpg`search キーワード"
+#: efb_trysh_middleware/__init__.py:118
+msgid "Usage: trysh`search query"
+msgstr "用法：trysh`search キーワード"
 
-#: efb_gpg_middleware/__init__.py:130
+#: efb_trysh_middleware/__init__.py:130
 #, python-brace-format
 msgid "Key {0} not found."
 msgstr "キー {0} が見つかりません"
 
-#: efb_gpg_middleware/__init__.py:134 efb_gpg_middleware/__init__.py:138
+#: efb_trysh_middleware/__init__.py:134 efb_trysh_middleware/__init__.py:138
 #, python-brace-format
 msgid "Key {0} is now for this chat."
 msgstr "キー {0} はこのチャットに設定されました。"
 
-#: efb_gpg_middleware/__init__.py:140
+#: efb_trysh_middleware/__init__.py:140
 #, python-brace-format
 msgid "{0} is not a valid key."
 msgstr "{0} は無効なキーです。"
 
-#: efb_gpg_middleware/__init__.py:142
-msgid "Usage: gpg`bind FingerPrintHex"
-msgstr "用法: gpg`bind フィンガープリントの１６進数"
+#: efb_trysh_middleware/__init__.py:142
+msgid "Usage: trysh`bind FingerPrintHex"
+msgstr "用法: trysh`bind フィンガープリントの１６進数"
 

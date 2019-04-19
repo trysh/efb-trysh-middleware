@@ -2,7 +2,7 @@
 
 files: [
   {
-    "source" : "/EFBChannels/efb-gpg-middleware/efb_gpg_middleware/locale/*.pot",
-    "translation" : "/EFBChannels/efb-gpg-middleware/efb_gpg_middleware/locale/%locale_with_underscore%/LC_MESSAGES/%file_name%.po",
+    "source" : "/EFBChannels/efb-trysh-middleware/efb_trysh_middleware/locale/*.pot",
+    "translation" : "/EFBChannels/efb-trysh-middleware/efb_trysh_middleware/locale/%locale_with_underscore%/LC_MESSAGES/%file_name%.po",
   },
 ]

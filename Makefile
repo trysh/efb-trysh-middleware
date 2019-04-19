@@ -1,4 +1,4 @@
-PACKAGE = efb_gpg_middleware
+PACKAGE = efb_trysh_middleware
 
 gettext:
 	find ./$(PACKAGE) -iname "*.py" | xargs xgettext --add-comments=TRANSLATORS -o ./$(PACKAGE)/locale/$(PACKAGE).pot
