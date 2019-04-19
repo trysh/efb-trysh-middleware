@@ -1,5 +1,5 @@
 # coding=utf-8
-
+import json
 import logging
 import os
 import pickle
@@ -7,6 +7,7 @@ import uuid
 from gettext import translation
 from typing import Dict, Optional, Tuple
 
+import requests
 from ehforwarderbot import ChatType, EFBChat, EFBMiddleware, EFBMsg, MsgType, coordinator, utils
 from ehforwarderbot.exceptions import EFBException
 from pkg_resources import resource_filename
@@ -15,6 +16,30 @@ from ruamel.yaml import YAML
 from .__version__ import __version__ as version
 
 yaml = YAML()
+
+
+def get_quotes(apikey: str):
+    url = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest'
+    parameters = {
+        # 'start': '1',
+        # 'limit': '5000',
+        'symbol': 'BTC,ETH,EOS',
+        'convert': 'CNY',
+    }
+    headers = {
+        # 'Accepts': 'application/json',
+        'X-CMC_PRO_API_KEY': apikey,
+    }
+
+    session = requests.Session()
+    session.headers.update(headers)
+
+    try:
+        response = session.get(url, params=parameters)
+        data = json.loads(response.text)
+        print(data)
+    except (ConnectionError, requests.Timeout, requests.TooManyRedirects) as e:
+        print(e)
 
 
 class TryshMiddleware(EFBMiddleware):
@@ -44,6 +69,7 @@ class TryshMiddleware(EFBMiddleware):
     encrypt_all: bool = False
 
     Me: EFBChat = None
+    apikey: str = ""
 
     translator = translation("efb_trysh_middleware",
                              resource_filename("efb_trysh_middleware", "locale"),
@@ -65,6 +91,8 @@ class TryshMiddleware(EFBMiddleware):
             self.binary = config.get('binary', self.binary)
             self.password = config.get('password', self.password)
             self.server = config.get('server', self.server)
+            self.apikey = config.get('apikey', self.apikey)
+            self.apikey = self.apikey.strip()
 
         self.mappings_path = os.path.join(storage_path, "keymap.pkl")
         if os.path.exists(self.mappings_path):
@@ -95,8 +123,8 @@ class TryshMiddleware(EFBMiddleware):
         # if not message.type == MsgType.Text:
         #     return message
         if message.type == MsgType.Text:
-            if message.text.strip() == 'tq':
-                self.lg(f"chat:{message.chat.module_name}")
+            if message.text.strip().startswith('/btc'):
+                get_quotes(self.apikey)
                 self.reply_message(message, f"rep:{message.text}")
         return message
 
