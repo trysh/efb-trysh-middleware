@@ -99,19 +99,19 @@ class TryshMiddleware(EFBMiddleware):
         # if not message.type == MsgType.Text:
         #     return message
         coins = ('HUB', 'BTC', 'ETH', 'EOS')
+
+        def coin_re(coin: str):
+            if coin in coins:
+                rq = self.get_coin(coin)
+                if len(rq) == 2:
+                    self.reply_message(message, f"{coin}:{rq[0]}￥  {rq[1]} $")
+
         if message.type == MsgType.Text:
-            txt = message.text.strip()
+            txt = message.text.strip().upper()
             if txt.startswith('/') and len(txt) >= 2:
-                cmd = txt.upper()[1:]
-                if cmd in coins:
-                    rq = self.get_coin(cmd)
-                    if rq != '' and len(rq) == 2:
-                        self.reply_message(message, f"{cmd}:{rq[0]}￥ {rq[1]}$")
-            elif txt.upper() in coins:
-                cmd = txt.upper()
-                rq = self.get_coin(cmd)
-                if rq != '' and len(rq) == 2:
-                    self.reply_message(message, f"{cmd}:{rq[0]}￥ {rq[1]}$")
+                coin_re(txt[1:])
+            elif txt in coins:
+                coin_re(txt)
         return message
 
     def reply_message(self, message: EFBMsg, text: str):
@@ -130,64 +130,64 @@ class TryshMiddleware(EFBMiddleware):
         r2.deliver_to = coordinator.master
         coordinator.send_message(r2)
 
-    def get_quotes(self):
-        url = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest'
-        parameters = {
-            # 'start': '1',
-            # 'limit': '5000',
-            'symbol': 'BTC,ETH,EOS',
-            'convert': 'CNY',
-        }
-        headers = {
-            # 'Accepts': 'application/json',
-            'X-CMC_PRO_API_KEY': self.apikey,
-        }
-
-        session = requests.Session()
-        session.headers.update(headers)
-
-        try:
-            response = session.get(url, params=parameters)
-            data = json.loads(response.text)
-            self.lg(f"api:{data}")
-            # return f"btc:{data.data.BTC.quote.CNY.price} yo:{data.data.YO.quote.CNY.price}"
-            btcp = int(data.get('data', {}).get('BTC', {}).get('quote', {}).get('CNY', {}).get('price', 0))
-            ethp = int(data.get('data', {}).get('ETH', {}).get('quote', {}).get('CNY', {}).get('price', 0))
-            eosp = int(data.get('data', {}).get('EOS', {}).get('quote', {}).get('CNY', {}).get('price', 0))
-            hubp = self.get_hub()
-            return f"HUB:{hubp}￥ \nBTC:{btcp}￥ \nETH:{ethp}￥ \nEOS:{eosp}￥"
-        except (ConnectionError, requests.Timeout, requests.TooManyRedirects) as e:
-            self.lg(f"api e:{e}")
-            return ''
-
-    def get_hub(self):
-        url = 'https://www.hubi.pub/api/public/bos/market/symbol/info/mobile'
-        parameters = {
-            'symbol': 'hub_usdt',
-            'partition_by': '01001',
-        }
-        headers = {
-            # 'Accepts': 'application/json',
-            # 'X-CMC_PRO_API_KEY': self.apikey,
-        }
-        session = requests.Session()
-        session.headers.update(headers)
-        try:
-            response = session.get(url, params=parameters)
-            data = json.loads(response.text)
-            self.lg(f"api:{data}")
-            v = data[0] if len(data) >= 1 else {}
-            v = float(v.get('cost', {}).get('cnyRate', 0.0))
-            v = "%.2f" % v if v < 10 else str(int(v))
-            # return f"btc:{data.data.BTC.quote.CNY.price} yo:{data.data.YO.quote.CNY.price}"
-            # btcp = int(data.get('data', {}).get('BTC', {}).get('quote', {}).get('CNY', {}).get('price', 0))
-            # ethp = int(data.get('data', {}).get('ETH', {}).get('quote', {}).get('CNY', {}).get('price', 0))
-            # eosp = int(data.get('data', {}).get('EOS', {}).get('quote', {}).get('CNY', {}).get('price', 0))
-            # return f"BTC:{btcp}￥ \nETH:{ethp}￥ \nEOS:{eosp}￥"
-            return v
-        except (ConnectionError, requests.Timeout, requests.TooManyRedirects) as e:
-            self.lg(f"api e:{e}")
-            return ''
+    # def get_quotes(self):
+    #     url = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest'
+    #     parameters = {
+    #         # 'start': '1',
+    #         # 'limit': '5000',
+    #         'symbol': 'BTC,ETH,EOS',
+    #         'convert': 'CNY',
+    #     }
+    #     headers = {
+    #         # 'Accepts': 'application/json',
+    #         'X-CMC_PRO_API_KEY': self.apikey,
+    #     }
+    #
+    #     session = requests.Session()
+    #     session.headers.update(headers)
+    #
+    #     try:
+    #         response = session.get(url, params=parameters)
+    #         data = json.loads(response.text)
+    #         self.lg(f"api:{data}")
+    #         # return f"btc:{data.data.BTC.quote.CNY.price} yo:{data.data.YO.quote.CNY.price}"
+    #         btcp = int(data.get('data', {}).get('BTC', {}).get('quote', {}).get('CNY', {}).get('price', 0))
+    #         ethp = int(data.get('data', {}).get('ETH', {}).get('quote', {}).get('CNY', {}).get('price', 0))
+    #         eosp = int(data.get('data', {}).get('EOS', {}).get('quote', {}).get('CNY', {}).get('price', 0))
+    #         hubp = self.get_hub()
+    #         return f"HUB:{hubp}￥ \nBTC:{btcp}￥ \nETH:{ethp}￥ \nEOS:{eosp}￥"
+    #     except (ConnectionError, requests.Timeout, requests.TooManyRedirects) as e:
+    #         self.lg(f"api e:{e}")
+    #         return ''
+    #
+    # def get_hub(self):
+    #     url = 'https://www.hubi.pub/api/public/bos/market/symbol/info/mobile'
+    #     parameters = {
+    #         'symbol': 'hub_usdt',
+    #         'partition_by': '01001',
+    #     }
+    #     headers = {
+    #         # 'Accepts': 'application/json',
+    #         # 'X-CMC_PRO_API_KEY': self.apikey,
+    #     }
+    #     session = requests.Session()
+    #     session.headers.update(headers)
+    #     try:
+    #         response = session.get(url, params=parameters)
+    #         data = json.loads(response.text)
+    #         self.lg(f"api:{data}")
+    #         v = data[0] if len(data) >= 1 else {}
+    #         v = float(v.get('cost', {}).get('cnyRate', 0.0))
+    #         v = "%.2f" % v if v < 10 else str(int(v))
+    #         # return f"btc:{data.data.BTC.quote.CNY.price} yo:{data.data.YO.quote.CNY.price}"
+    #         # btcp = int(data.get('data', {}).get('BTC', {}).get('quote', {}).get('CNY', {}).get('price', 0))
+    #         # ethp = int(data.get('data', {}).get('ETH', {}).get('quote', {}).get('CNY', {}).get('price', 0))
+    #         # eosp = int(data.get('data', {}).get('EOS', {}).get('quote', {}).get('CNY', {}).get('price', 0))
+    #         # return f"BTC:{btcp}￥ \nETH:{ethp}￥ \nEOS:{eosp}￥"
+    #         return v
+    #     except (ConnectionError, requests.Timeout, requests.TooManyRedirects) as e:
+    #         self.lg(f"api e:{e}")
+    #         return ''
 
     def get_coin(self, coin: str):
         url = 'https://www.hubi.pub/api/public/bos/market/symbol/info/mobile'
@@ -218,4 +218,4 @@ class TryshMiddleware(EFBMiddleware):
             return v1, v2
         except (ConnectionError, requests.Timeout, requests.TooManyRedirects) as e:
             self.lg(f"api e:{e}")
-            return ''
+            return ()
