@@ -142,7 +142,10 @@ class TryshMiddleware(EFBMiddleware):
             data = json.loads(response.text)
             self.lg(f"api:{data}")
             # return f"btc:{data.data.BTC.quote.CNY.price} yo:{data.data.YO.quote.CNY.price}"
-            return f"btc:{data.get('data', {}).get('BTC', {}).get('quote', {}).get('CNY', {}).get('price', '')}"
+            btcp = int(data.get('data', {}).get('BTC', {}).get('quote', {}).get('CNY', {}).get('price', 0))
+            ethp = int(data.get('data', {}).get('ETH', {}).get('quote', {}).get('CNY', {}).get('price', 0))
+            eosp = int(data.get('data', {}).get('EOS', {}).get('quote', {}).get('CNY', {}).get('price', 0))
+            return f"BTC:{btcp} \nETH:{ethp} \nEOS:{eosp}"
         except (ConnectionError, requests.Timeout, requests.TooManyRedirects) as e:
             self.lg(f"api e:{e}")
             return ''
