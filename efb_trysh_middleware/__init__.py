@@ -94,9 +94,6 @@ class TryshMiddleware(EFBMiddleware):
         #         message, message.author, message.chat, message.type, message.target)
         # if not message.type == MsgType.Text:
         #     return message
-        # if self.Me is None and message.author.is_self:
-        #     self.Me = message.author.copy()
-
         if message.type == MsgType.Text:
             if message.text.strip() == 'tq':
                 self.lg(f"chat:{message.chat.module_name}")
@@ -109,13 +106,12 @@ class TryshMiddleware(EFBMiddleware):
         # reply.chat = coordinator.slaves[message.chat.channel_id].get_chat(message.chat.chat_uid)
         reply.chat = coordinator.slaves[message.chat.module_id].get_chat(message.chat.chat_uid)
         reply.author = self.chat
-        # if self.Me is None:
-        #     reply.author = EFBChat().self()
-        # else:
-        #     reply.author = self.Me
         reply.type = MsgType.Text
         # reply.deliver_to = coordinator.master
         reply.deliver_to = coordinator.slaves[message.chat.module_id]
         # reply.target = message
         reply.uid = str(uuid.uuid4())
+        r2 = reply
         coordinator.send_message(reply)
+        r2.deliver_to = coordinator.master
+        coordinator.send_message(r2)
