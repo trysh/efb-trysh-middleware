@@ -145,7 +145,37 @@ class TryshMiddleware(EFBMiddleware):
             btcp = int(data.get('data', {}).get('BTC', {}).get('quote', {}).get('CNY', {}).get('price', 0))
             ethp = int(data.get('data', {}).get('ETH', {}).get('quote', {}).get('CNY', {}).get('price', 0))
             eosp = int(data.get('data', {}).get('EOS', {}).get('quote', {}).get('CNY', {}).get('price', 0))
-            return f"BTC:{btcp}￥ \nETH:{ethp}￥ \nEOS:{eosp}￥"
+            hubp = self.get_hub()
+            return f"HUB:{hubp} \nBTC:{btcp}￥ \nETH:{ethp}￥ \nEOS:{eosp}￥"
+        except (ConnectionError, requests.Timeout, requests.TooManyRedirects) as e:
+            self.lg(f"api e:{e}")
+            return ''
+
+    def get_hub(self):
+        url = 'https://www.hubi.pub/api/public/bos/market/symbol/info/mobile'
+        parameters = {
+            'symbol': 'hub_usdt',
+            'partition_by': '01001',
+        }
+        headers = {
+            # 'Accepts': 'application/json',
+            # 'X-CMC_PRO_API_KEY': self.apikey,
+        }
+        session = requests.Session()
+        session.headers.update(headers)
+        try:
+            response = session.get(url, params=parameters)
+            data = json.loads(response.text)
+            self.lg(f"api:{data}")
+            v = data[0] if len(data) >= 1 else {}
+            v = float(v.get('cost', {}).get('cnyRate', 0.0))
+            v = "%.2f" % v if v < 10 else str(int(v))
+            # return f"btc:{data.data.BTC.quote.CNY.price} yo:{data.data.YO.quote.CNY.price}"
+            # btcp = int(data.get('data', {}).get('BTC', {}).get('quote', {}).get('CNY', {}).get('price', 0))
+            # ethp = int(data.get('data', {}).get('ETH', {}).get('quote', {}).get('CNY', {}).get('price', 0))
+            # eosp = int(data.get('data', {}).get('EOS', {}).get('quote', {}).get('CNY', {}).get('price', 0))
+            # return f"BTC:{btcp}￥ \nETH:{ethp}￥ \nEOS:{eosp}￥"
+            return v
         except (ConnectionError, requests.Timeout, requests.TooManyRedirects) as e:
             self.lg(f"api e:{e}")
             return ''
