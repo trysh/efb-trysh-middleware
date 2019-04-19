@@ -85,6 +85,7 @@ class TryshMiddleware(EFBMiddleware):
         # if not message.type == MsgType.Text:
         #     return message
         self.logger.debug("[%s] is a text message.", message.uid)
+        return message
 
     def reply_message(self, message: EFBMsg, text: str):
         reply = EFBMsg()
