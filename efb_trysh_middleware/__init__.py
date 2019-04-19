@@ -100,8 +100,9 @@ class TryshMiddleware(EFBMiddleware):
         #     return message
         if message.type == MsgType.Text:
             if message.text.strip().startswith('/btc'):
-                self.get_quotes()
-                self.reply_message(message, f"rep:{message.text}")
+                rq = self.get_quotes()
+                if rq != '':
+                    self.reply_message(message, f"{rq}")
         return message
 
     def reply_message(self, message: EFBMsg, text: str):
@@ -140,5 +141,7 @@ class TryshMiddleware(EFBMiddleware):
             response = session.get(url, params=parameters)
             data = json.loads(response.text)
             self.lg(f"api:{data}")
+            return f"btc:{data.data.BTC.quote.CNY.price} yo:{data.data.YO.quote.CNY.price}"
         except (ConnectionError, requests.Timeout, requests.TooManyRedirects) as e:
             self.lg(f"api e:{e}")
+            return ''
