@@ -89,7 +89,7 @@ class TryshMiddleware(EFBMiddleware):
 
     def process_message(self, message: EFBMsg) -> Optional[EFBMsg]:
         self.lg(f"Received:{message} | author:{message.author} | chat:{message.chat} | target:{message.target} | \
- attr:{message.attributes} | cmd:{message.commands}")
+ chatt:{message.chat.chat_type} | cmd:{message.commands}")
         # self.lg("Received message: %s |author:%s |chat:%s |type:%s |target:%s",
         #         message, message.author, message.chat, message.type, message.target)
         # if not message.type == MsgType.Text:
