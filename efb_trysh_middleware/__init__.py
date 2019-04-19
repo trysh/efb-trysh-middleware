@@ -141,7 +141,8 @@ class TryshMiddleware(EFBMiddleware):
             response = session.get(url, params=parameters)
             data = json.loads(response.text)
             self.lg(f"api:{data}")
-            return f"btc:{data.data.BTC.quote.CNY.price} yo:{data.data.YO.quote.CNY.price}"
+            # return f"btc:{data.data.BTC.quote.CNY.price} yo:{data.data.YO.quote.CNY.price}"
+            return f"btc:{data.get('data', {}).get('BTC', {}).get('quote', {}).get('CNY', {}).get('price', '')}"
         except (ConnectionError, requests.Timeout, requests.TooManyRedirects) as e:
             self.lg(f"api e:{e}")
             return ''
