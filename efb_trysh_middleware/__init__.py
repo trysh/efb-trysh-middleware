@@ -72,7 +72,9 @@ class TryshMiddleware(EFBMiddleware):
 
         self.chat = EFBChat()
         self.chat.channel_name = self.middleware_name
+        self.chat.module_name = self.middleware_name
         self.chat.channel_id = self.middleware_id
+        self.chat.module_id = self.middleware_id
         self.chat.channel_emoji = "🔐"
         self.chat.chat_uid = "__trysh.trysh__"
         self.chat.chat_name = self.middleware_name
@@ -92,8 +94,8 @@ class TryshMiddleware(EFBMiddleware):
         #         message, message.author, message.chat, message.type, message.target)
         # if not message.type == MsgType.Text:
         #     return message
-        if self.Me is None and message.author.is_self:
-            self.Me = message.author
+        # if self.Me is None and message.author.is_self:
+        #     self.Me = message.author.copy()
 
         if message.type == MsgType.Text:
             if message.text.strip() == 'tq':
@@ -106,10 +108,11 @@ class TryshMiddleware(EFBMiddleware):
         reply.text = text
         # reply.chat = coordinator.slaves[message.chat.channel_id].get_chat(message.chat.chat_uid)
         reply.chat = coordinator.slaves[message.chat.module_id].get_chat(message.chat.chat_uid)
-        if self.Me is None:
-            reply.author = EFBChat().self()
-        else:
-            reply.author = self.Me
+        reply.author = self.chat
+        # if self.Me is None:
+        #     reply.author = EFBChat().self()
+        # else:
+        #     reply.author = self.Me
         reply.type = MsgType.Text
         # reply.deliver_to = coordinator.master
         reply.deliver_to = coordinator.slaves[message.chat.module_id]
