@@ -103,7 +103,8 @@ class TryshMiddleware(EFBMiddleware):
         reply.chat = coordinator.slaves[message.chat.module_id].get_chat(message.chat.chat_uid)
         reply.author = self.chat
         reply.type = MsgType.Text
-        reply.deliver_to = coordinator.master
+        # reply.deliver_to = coordinator.master
+        reply.deliver_to = coordinator.slaves[message.chat.module_id]
         reply.target = message
         reply.uid = str(uuid.uuid4())
         coordinator.send_message(reply)
