@@ -18,7 +18,7 @@ from .__version__ import __version__ as version
 yaml = YAML()
 
 
-class GPGMiddleware(EFBMiddleware):
+class TryshMiddleware(EFBMiddleware):
     """
     Configuration:
 
@@ -51,7 +51,6 @@ class GPGMiddleware(EFBMiddleware):
 
     def __init__(self, instance_id: str = None):
         super().__init__(instance_id)
-
         storage_path = utils.get_data_path(self.middleware_id)
         config_path = utils.get_config_path(self.middleware_id)
         if not os.path.exists(storage_path):
@@ -79,6 +78,7 @@ class GPGMiddleware(EFBMiddleware):
         self.chat.chat_type = ChatType.System
 
         self.logger = logging.getLogger("trysh.trysh")
+        self.logger.debug("trysh init ok")
 
     def process_message(self, message: EFBMsg) -> Optional[EFBMsg]:
         self.logger.debug("Received message: %s", message)
