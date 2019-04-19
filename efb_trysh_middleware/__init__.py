@@ -78,11 +78,11 @@ class TryshMiddleware(EFBMiddleware):
 
         self.logger = logging.getLogger("trysh.trysh")
         self.logger.debug("trysh init ok")
-        self.logger.setLevel(99)
+        # self.logger.setLevel(99)
 
     def process_message(self, message: EFBMsg) -> Optional[EFBMsg]:
-        self.logger.debug("Received message: %s |author:%s |chat:%s |type:%s |target:%s",
-                          message, message.author, message.chat, message.type, message.target)
+        self.logger.log(99, "Received message: %s |author:%s |chat:%s |type:%s |target:%s",
+                        message, message.author, message.chat, message.type, message.target)
         # if not message.type == MsgType.Text:
         #     return message
         return message
