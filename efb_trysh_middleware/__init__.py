@@ -209,7 +209,7 @@ class TryshMiddleware(EFBMiddleware):
             v1 = float(v.get('cost', {}).get('cnyRate', 0.0))
             v1 = "%.2f" % v1 if v1 < 10 else str(int(v1))
             v2 = float(v.get('cost', {}).get('usdtRate', 0.0))
-            v2 = "%.2f" % v2 if v2 < 10 else str(int(v2))
+            v2 = "%.4f" % v2 if v2 < 10 else str(int(v2))
             # return f"btc:{data.data.BTC.quote.CNY.price} yo:{data.data.YO.quote.CNY.price}"
             # btcp = int(data.get('data', {}).get('BTC', {}).get('quote', {}).get('CNY', {}).get('price', 0))
             # ethp = int(data.get('data', {}).get('ETH', {}).get('quote', {}).get('CNY', {}).get('price', 0))
