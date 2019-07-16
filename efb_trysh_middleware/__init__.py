@@ -98,7 +98,7 @@ class TryshMiddleware(EFBMiddleware):
         #         message, message.author, message.chat, message.type, message.target)
         # if not message.type == MsgType.Text:
         #     return message
-        coins = ('HUB', 'BTC', 'ETH', 'EOS')
+        coins = ('HUB', 'BTC', 'ETH', 'EOS', 'CMMC')
 
         def coin_re(coin: str):
             if coin in coins:
@@ -190,10 +190,14 @@ class TryshMiddleware(EFBMiddleware):
     #         return ''
 
     def get_coin(self, coin: str):
-        url = 'https://www.hubi.pub/api/public/bos/market/symbol/info/mobile'
+        url = 'https://www.hubi.pub/api/public/bos/market/rate/latest'
+        '''
+        [{"coinCode":"HUB","btcRate":0.0000031374,"usdtRate":0.0342230000,"cnyRate":0.23952335470000,"btcRateStr":null,"usdtRateStr":null,"cnyRateStr":null}]
+        '''
+        # ''https://www.hubi.pub/api/public/bos/market/symbol/info/mobile'
         parameters = {
-            'symbol': coin + '_usdt',
-            'partition_by': '01001',
+            'coin_code': coin,  # 'symbol': coin + '_usdt',
+            # 'partition_by': '01001',
         }
         headers = {
             # 'Accepts': 'application/json',
@@ -206,10 +210,10 @@ class TryshMiddleware(EFBMiddleware):
             data = json.loads(response.text)
             # self.lg(f"api:{data}")
             v = data[0] if len(data) >= 1 else {}
-            v1 = float(v.get('cost', {}).get('cnyRate', 0.0))
-            v1 = "%.2f" % v1 if v1 < 10 else str(int(v1))
-            v2 = float(v.get('cost', {}).get('usdtRate', 0.0))
-            v2 = "%.2f" % v2 if v2 < 10 else str(int(v2))
+            v1 = float(v.get('cnyRate', 0.0))
+            v1 = "%.3f" % v1 if v1 < 50 else str(int(v1))
+            v2 = float(v.get('usdtRate', 0.0))
+            v2 = "%.4f" % v2 if v2 < 10 else str(int(v2))
             # return f"btc:{data.data.BTC.quote.CNY.price} yo:{data.data.YO.quote.CNY.price}"
             # btcp = int(data.get('data', {}).get('BTC', {}).get('quote', {}).get('CNY', {}).get('price', 0))
             # ethp = int(data.get('data', {}).get('ETH', {}).get('quote', {}).get('CNY', {}).get('price', 0))
