@@ -238,7 +238,7 @@ class TryshMiddleware(EFBMiddleware):
 
         url = c_host + '/api/public/bos/market/trade/list'
         parameters = {
-            'coin_code': 'HUB',
+            'coin_code': coin,
             'price_coin_code': 'USDT',
             'partition_by': '01001'
         }
