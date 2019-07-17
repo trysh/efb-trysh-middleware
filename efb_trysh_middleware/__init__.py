@@ -259,7 +259,7 @@ class TryshMiddleware(EFBMiddleware):
         v1 = cv*rateusdt2btc*ratebtc2cny
         v2 = cv
         v1 = math.floor(v1*1000)/1000
-        v2 = math.floor(v1*10000)/10000
+        v2 = math.floor(v2*10000)/10000
         try:
             v1 = "%.3f" % v1 if v1 < 50 else str(int(v1))
             v2 = "%.4f" % v2 if v2 < 10 else str(int(v2))
