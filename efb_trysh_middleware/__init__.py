@@ -16,9 +16,10 @@ from ruamel.yaml import YAML
 
 from .__version__ import __version__ as version
 
-yaml = YAML()
 
+yaml = YAML()
 c_host = 'https://www.hubi.pub'
+
 
 class TryshMiddleware(EFBMiddleware):
     """
@@ -36,15 +37,16 @@ class TryshMiddleware(EFBMiddleware):
     middleware_name: str = "trysh Middleware"
     __version__: str = version
 
-    mappings: Dict[Tuple[str, str], str] = {}
     chat: EFBChat = None
 
-    key: str = None
-    password: str = None
-    always_trust: bool = True
-    binary: str = "gpg"
-    server: str = "pgp.mit.edu"
-    encrypt_all: bool = False
+    # mappings: Dict[Tuple[str, str], str] = {}
+
+    # key: str = None
+    # password: str = None
+    # always_trust: bool = True
+    # binary: str = "gpg"
+    # server: str = "pgp.mit.edu"
+    # encrypt_all: bool = False
 
     Me: EFBChat = None
     apikey: str = ""
@@ -61,27 +63,27 @@ class TryshMiddleware(EFBMiddleware):
         if not os.path.exists(storage_path):
             os.makedirs(storage_path)
         if not os.path.exists(config_path):
-            raise EFBException(self._("GnuPG middleware is not configured."))
+            # raise EFBException(self._("GnuPG middleware is not configured."))
+            pass
         else:
             config = yaml.load(open(config_path))
-            self.key = config['key']
-            self.always_trust = config.get('always_trust', self.always_trust)
-            self.binary = config.get('binary', self.binary)
-            self.password = config.get('password', self.password)
-            self.server = config.get('server', self.server)
-            self.apikey = config.get('apikey', self.apikey)
-            self.apikey = self.apikey.strip()
+            # self.key = config['key']
+            # self.always_trust = config.get('always_trust', self.always_trust)
+            # self.binary = config.get('binary', self.binary)
+            # self.password = config.get('password', self.password)
+            # self.server = config.get('server', self.server)
+            self.apikey = config.get('apikey', self.apikey).strip()
 
-        self.mappings_path = os.path.join(storage_path, "keymap.pkl")
-        if os.path.exists(self.mappings_path):
-            self.mappings = pickle.load(open(self.mappings_path, 'rb'))
+        # self.mappings_path = os.path.join(storage_path, "keymap.pkl")
+        # if os.path.exists(self.mappings_path):
+        #     self.mappings = pickle.load(open(self.mappings_path, 'rb'))
 
         self.chat = EFBChat()
         self.chat.channel_name = self.middleware_name
         self.chat.module_name = self.middleware_name
         self.chat.channel_id = self.middleware_id
         self.chat.module_id = self.middleware_id
-        self.chat.channel_emoji = "🔐"
+        self.chat.channel_emoji = "🤖"
         self.chat.chat_uid = "__trysh.trysh__"
         self.chat.chat_name = self.middleware_name
         self.chat.chat_type = ChatType.System
@@ -100,7 +102,7 @@ class TryshMiddleware(EFBMiddleware):
         #         message, message.author, message.chat, message.type, message.target)
         # if not message.type == MsgType.Text:
         #     return message
-        coins = ('HUB', 'BTC', 'ETH', 'EOS', 'CMMC')
+        coins = ('HUB', 'BTC', 'ETH', 'EOS')
 
         def coin_re(coin: str):
             if coin in coins:
@@ -110,8 +112,8 @@ class TryshMiddleware(EFBMiddleware):
 
         if message.type == MsgType.Text:
             txt = message.text.strip().upper()
-            if txt.startswith('/') and len(txt) >= 2:
-                coin_re(txt[1:])
+            if False and txt.startswith('/') and len(txt) >= 2:
+                pass  # coin_re(txt[1:])
             elif txt in coins:
                 coin_re(txt)
         return message
@@ -211,6 +213,7 @@ class TryshMiddleware(EFBMiddleware):
         except (ConnectionError, requests.Timeout, requests.TooManyRedirects, BaseException) as e:
             print('http err', e)
             return
+        session.close()
 
         rateusdt2btc = 0.0
         for v in qus:
@@ -230,11 +233,11 @@ class TryshMiddleware(EFBMiddleware):
                 ratebtc2cny = v.get('rate')
                 break
 
-        ratebtc2usd = 0.0
-        for v in raw:
-            if v.get('from') == 'BTC' and v.get('to') == 'USD':
-                ratebtc2usd = v.get('rate')
-                break
+        # ratebtc2usd = 0.0
+        # for v in raw:
+        #     if v.get('from') == 'BTC' and v.get('to') == 'USD':
+        #         ratebtc2usd = v.get('rate')
+        #         break
 
         url = c_host + '/api/public/bos/market/trade/list'
         parameters = {
@@ -250,16 +253,18 @@ class TryshMiddleware(EFBMiddleware):
         except (ConnectionError, requests.Timeout, requests.TooManyRedirects) as e:
             print('http err', e)
             return
+        session.close()
 
         cv = 0.0
         try:
             cv = data.get('trades')[0].get('price')
         except Exception as e:
             print('except:', e)
-        v1 = cv*rateusdt2btc*ratebtc2cny
+        v1 = cv * rateusdt2btc * ratebtc2cny
         v2 = cv
-        v1 = math.floor(v1*1000)/1000
-        v2 = math.floor(v2*10000)/10000
+        # print(cv, cv * rateusdt2btc * ratebtc2usd)
+        v1 = math.floor(v1 * 1000) / 1000
+        v2 = math.floor(v2 * 10000) / 10000
         try:
             v1 = "%.3f" % v1 if v1 < 50 else str(int(v1))
             v2 = "%.4f" % v2 if v2 < 10 else str(int(v2))
@@ -272,3 +277,7 @@ class TryshMiddleware(EFBMiddleware):
         except (ConnectionError, requests.Timeout, requests.TooManyRedirects, BaseException) as e:
             self.lg(f"api e:{e}")
             return ()
+
+# def test_get_coin():
+#     t = TryshMiddleware()
+#     t.get_coin('hub')

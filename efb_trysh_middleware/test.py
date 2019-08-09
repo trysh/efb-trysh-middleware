@@ -2,12 +2,17 @@ import json
 
 import requests
 import math
+import pytest
+import efb_trysh_middleware as etm
 
 
 c_host = 'https://www.hubi.pub'
 
 
 def main():
+    t = etm.TryshMiddleware()
+    t.get_coin('btc')
+    return
     url = c_host+'/api/ticker/public/convert/raw'
     parameters = {
     }
@@ -110,3 +115,8 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
+def test_t1():
+    t = etm.TryshMiddleware()
+    t.get_coin('hub')
