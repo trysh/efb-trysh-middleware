@@ -116,7 +116,7 @@ class TryshMiddleware(EFBMiddleware):
             if txt in coins:
                 coin_re(txt)
         if message.type == MsgType.Text:
-            txt = message.text[:].strip().upper() or ''
+            txt = message.text[:].strip().lower() or ''
             if txt == 'disnot':
                 print('disnot')
                 message.vendor_specific = {"disable_notification": True}
