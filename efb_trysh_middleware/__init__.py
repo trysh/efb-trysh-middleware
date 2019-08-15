@@ -16,7 +16,6 @@ from ruamel.yaml import YAML
 
 from .__version__ import __version__ as version
 
-
 yaml = YAML()
 c_host = 'https://www.hubi.pub'
 
@@ -107,15 +106,16 @@ class TryshMiddleware(EFBMiddleware):
         def coin_re(coin: str):
             if coin in coins:
                 rq = self.get_coin(coin)
-                if len(rq) == 2:
+                if rq and len(rq) == 2:
                     self.reply_message(message, f"{coin}: {rq[0]}¥  {rq[1]}$")
 
         if message.type == MsgType.Text:
-            txt = message.text.strip().upper()
-            if False and txt.startswith('/') and len(txt) >= 2:
-                pass  # coin_re(txt[1:])
-            elif txt in coins:
+            txt = message.text[:].strip().upper() or ''
+            # if False and txt.startswith('/') and len(txt) >= 2:
+            #     pass  # coin_re(txt[1:])
+            if txt in coins:
                 coin_re(txt)
+
         return message
 
     def reply_message(self, message: EFBMsg, text: str):

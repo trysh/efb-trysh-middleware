@@ -11,7 +11,7 @@ c_host = 'https://www.hubi.pub'
 
 def main():
     t = etm.TryshMiddleware()
-    t.get_coin('btc')
+    print(t.get_coin('btc'))
     return
     url = c_host+'/api/ticker/public/convert/raw'
     parameters = {
