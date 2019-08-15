@@ -115,7 +115,12 @@ class TryshMiddleware(EFBMiddleware):
             #     pass  # coin_re(txt[1:])
             if txt in coins:
                 coin_re(txt)
-
+        if message.type == MsgType.Text:
+            txt = message.text[:].strip().upper() or ''
+            if txt == 'disnot':
+                print('disnot')
+                message.vendor_specific = {"disable_notification": True}
+                message.chat.vendor_specific = {"disable_notification": True}
         return message
 
     def reply_message(self, message: EFBMsg, text: str):
