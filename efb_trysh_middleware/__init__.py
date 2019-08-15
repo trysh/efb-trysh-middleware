@@ -1,20 +1,23 @@
 # coding=utf-8
 import json
 import logging
-import os
-import pickle
-import uuid
 import math
+import os
+import uuid
 from gettext import translation
-from typing import Dict, Optional, Tuple
 
 import requests
 from ehforwarderbot import ChatType, EFBChat, EFBMiddleware, EFBMsg, MsgType, coordinator, utils
-from ehforwarderbot.exceptions import EFBException
 from pkg_resources import resource_filename
 from ruamel.yaml import YAML
+from typing import Optional
 
 from .__version__ import __version__ as version
+
+# from ehforwarderbot import EFBMiddleware, coordinator
+# from efb_telegram_master import TelegramChannel
+# from efb_telegram_master.whitelisthandler import WhitelistHandler
+
 
 yaml = YAML()
 c_host = 'https://www.hubi.pub'
@@ -115,12 +118,10 @@ class TryshMiddleware(EFBMiddleware):
             #     pass  # coin_re(txt[1:])
             if txt in coins:
                 coin_re(txt)
-        if message.type == MsgType.Text:
-            txt = message.text[:].strip().lower() or ''
-            if txt == 'disnot':
-                print('disnot')
-                message.vendor_specific = {"disable_notification": True}
-                message.chat.vendor_specific = {"disable_notification": True}
+        # if message.type == MsgType.Text:
+        #     txt = message.text[:].strip().lower() or ''
+        #     if txt == 'disnot':
+        #         print('disnot')
         return message
 
     def reply_message(self, message: EFBMsg, text: str):
