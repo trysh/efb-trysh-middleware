@@ -133,14 +133,15 @@ class TryshMiddleware(EFBMiddleware):
                     self.lg(f'get_coinimg ee:{e}')
                 if rt:
                     im3 = rt.convert('RGB')
-                    img_file = io.BytesIO()
-                    im3.save(img_file, 'JPEG')
-                    Image.open(img_file)
+                    # img_file = io.BytesIO()
+                    # im3.save(img_file, 'JPEG')
+                    # Image.open(img_file)
                     fname = ''
                     locals()
                     with tempfile.NamedTemporaryFile('w+t', suffix=".jpg") as f:
                         im3.save(f, 'JPEG')
                         fname = f.name
+                    img_file = open(fname, )
                     self.reply_message_img(message, img_file, fname)
 
         if message.type == MsgType.Text:
