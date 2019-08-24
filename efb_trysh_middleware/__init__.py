@@ -176,7 +176,7 @@ class TryshMiddleware(EFBMiddleware):
         r2.deliver_to = coordinator.master
         coordinator.send_message(r2)
 
-    def reply_message_img(self, message: EFBMsg, im3):
+    def reply_message_img(self, message: EFBMsg, im3: Image.Image):
         reply = EFBMsg()
         # reply.text = text
         # reply.chat = coordinator.slaves[message.chat.channel_id].get_chat(message.chat.chat_uid)
@@ -184,10 +184,10 @@ class TryshMiddleware(EFBMiddleware):
         reply.author = self.chat
 
         reply.type = MsgType.Image
-        reply.mime = 'image/jpeg'
-        f = tempfile.NamedTemporaryFile(suffix='.jpg')
+        reply.mime = 'image/png'
+        f = tempfile.NamedTemporaryFile(suffix='.png')
         img_data = io.BytesIO()
-        im3.save(img_data, format='jpeg')
+        im3.save(img_data, format='png')
         f.write(img_data.getvalue())
         f.file.seek(0)
         reply.file = f
@@ -202,10 +202,10 @@ class TryshMiddleware(EFBMiddleware):
         coordinator.send_message(reply)
 
         r2.type = MsgType.Image
-        r2.mime = 'image/jpeg'
-        f = tempfile.NamedTemporaryFile(suffix='.jpg')
+        r2.mime = 'image/png'
+        f = tempfile.NamedTemporaryFile(suffix='.png')
         img_data = io.BytesIO()
-        im3.save(img_data, format='jpeg')
+        im3.save(img_data, format='png')
         f.write(img_data.getvalue())
         f.file.seek(0)
         r2.file = f
