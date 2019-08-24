@@ -137,16 +137,16 @@ class TryshMiddleware(EFBMiddleware):
                     # im3.save(img_file, 'JPEG')
                     # Image.open(img_file)
 
-                    f = tempfile.NamedTemporaryFile(suffix='.jpg')
-                    img_data = io.BytesIO()
-                    im3.save(img_data, format='jpeg')
-                    f.write(img_data.getvalue())
-                    f.file.seek(0)
+                    # f = tempfile.NamedTemporaryFile(suffix='.jpg')
+                    # img_data = io.BytesIO()
+                    # im3.save(img_data, format='jpeg')
+                    # f.write(img_data.getvalue())
+                    # f.file.seek(0)
                     # with tempfile.NamedTemporaryFile('w+b', suffix=".jpg") as f:
                     # im3.save(f, 'jpeg')
                     # fname = f.name
                     # img_file = open(fname, )
-                    self.reply_message_img(message, f, f.name)
+                    self.reply_message_img(message, im3)
 
         if message.type == MsgType.Text:
             txt = message.text[:].strip().upper() or ''
@@ -176,7 +176,7 @@ class TryshMiddleware(EFBMiddleware):
         r2.deliver_to = coordinator.master
         coordinator.send_message(r2)
 
-    def reply_message_img(self, message: EFBMsg, imgfile, imgpath):
+    def reply_message_img(self, message: EFBMsg, im3):
         reply = EFBMsg()
         # reply.text = text
         # reply.chat = coordinator.slaves[message.chat.channel_id].get_chat(message.chat.chat_uid)
@@ -185,8 +185,13 @@ class TryshMiddleware(EFBMiddleware):
 
         reply.type = MsgType.Image
         reply.mime = 'image/jpeg'
-        reply.file = imgfile
-        reply.path = imgpath
+        f = tempfile.NamedTemporaryFile(suffix='.jpg')
+        img_data = io.BytesIO()
+        im3.save(img_data, format='jpeg')
+        f.write(img_data.getvalue())
+        f.file.seek(0)
+        reply.file = f
+        reply.path = f.name
         reply.filename = os.path.basename(reply.file.name)
 
         # reply.deliver_to = coordinator.master
@@ -195,6 +200,17 @@ class TryshMiddleware(EFBMiddleware):
         reply.uid = str(uuid.uuid4())
         r2 = reply
         coordinator.send_message(reply)
+
+        r2.type = MsgType.Image
+        r2.mime = 'image/jpeg'
+        f = tempfile.NamedTemporaryFile(suffix='.jpg')
+        img_data = io.BytesIO()
+        im3.save(img_data, format='jpeg')
+        f.write(img_data.getvalue())
+        f.file.seek(0)
+        r2.file = f
+        r2.path = f.name
+        r2.filename = os.path.basename(r2.file.name)
         r2.deliver_to = coordinator.master
         coordinator.send_message(r2)
 
