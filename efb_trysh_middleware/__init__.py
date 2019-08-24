@@ -4,6 +4,7 @@ import json
 import logging
 import math
 import os
+import tempfile
 import time
 import uuid
 from gettext import translation
@@ -135,7 +136,12 @@ class TryshMiddleware(EFBMiddleware):
                     img_file = io.BytesIO()
                     im3.save(img_file, 'JPEG')
                     Image.open(img_file)
-                    self.reply_message_img(message, img_file)
+                    fname = ''
+                    locals()
+                    with tempfile.NamedTemporaryFile('w+t', suffix=".jpg") as f:
+                        im3.save(f, 'JPEG')
+                        fname = f.name
+                    self.reply_message_img(message, img_file, fname)
 
         if message.type == MsgType.Text:
             txt = message.text[:].strip().upper() or ''
@@ -165,10 +171,11 @@ class TryshMiddleware(EFBMiddleware):
         r2.deliver_to = coordinator.master
         coordinator.send_message(r2)
 
-    def reply_message_img(self, message: EFBMsg, img):
+    def reply_message_img(self, message: EFBMsg, img, fpath):
         reply = EFBMsg()
         # reply.text = text
         reply.file = img
+        reply.path = fpath
         # reply.chat = coordinator.slaves[message.chat.channel_id].get_chat(message.chat.chat_uid)
         reply.chat = coordinator.slaves[message.chat.module_id].get_chat(message.chat.chat_uid)
         reply.author = self.chat
