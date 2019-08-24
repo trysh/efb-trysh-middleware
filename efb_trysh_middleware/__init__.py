@@ -141,8 +141,8 @@ class TryshMiddleware(EFBMiddleware):
                     with tempfile.NamedTemporaryFile('w+t', suffix=".jpg") as f:
                         im3.save(f, 'JPEG')
                         fname = f.name
-                    img_file = open(fname, )
-                    self.reply_message_img(message, img_file, fname)
+                        # img_file = open(fname, )
+                        self.reply_message_img(message, f, fname)
 
         if message.type == MsgType.Text:
             txt = message.text[:].strip().upper() or ''
@@ -222,6 +222,7 @@ class TryshMiddleware(EFBMiddleware):
         im2: Image.Image = im.crop((left, top, right, bottom))  # defines crop points
         # im2.save('aaa.png')  # saves new cropped image
         # im.save('bbb.png')  # saves new cropped image
+        wd.close()
         return im2
         pass
 
