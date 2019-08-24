@@ -136,13 +136,17 @@ class TryshMiddleware(EFBMiddleware):
                     # img_file = io.BytesIO()
                     # im3.save(img_file, 'JPEG')
                     # Image.open(img_file)
-                    fname = ''
-                    locals()
-                    with tempfile.NamedTemporaryFile('w+b', suffix=".jpg") as f:
-                        im3.save(f, 'JPEG')
-                        fname = f.name
-                        # img_file = open(fname, )
-                        self.reply_message_img(message, f, fname)
+
+                    f = tempfile.NamedTemporaryFile(suffix='.jpg')
+                    img_data = io.BytesIO()
+                    im3.save(img_data, format='jpeg')
+                    f.write(img_data.getvalue())
+                    f.file.seek(0)
+                    # with tempfile.NamedTemporaryFile('w+b', suffix=".jpg") as f:
+                    # im3.save(f, 'jpeg')
+                    # fname = f.name
+                    # img_file = open(fname, )
+                    self.reply_message_img(message, f, f.name)
 
         if message.type == MsgType.Text:
             txt = message.text[:].strip().upper() or ''
@@ -172,16 +176,19 @@ class TryshMiddleware(EFBMiddleware):
         r2.deliver_to = coordinator.master
         coordinator.send_message(r2)
 
-    def reply_message_img(self, message: EFBMsg, img, fpath):
+    def reply_message_img(self, message: EFBMsg, imgfile, imgpath):
         reply = EFBMsg()
         # reply.text = text
-        reply.file = img
-        reply.path = fpath
         # reply.chat = coordinator.slaves[message.chat.channel_id].get_chat(message.chat.chat_uid)
         reply.chat = coordinator.slaves[message.chat.module_id].get_chat(message.chat.chat_uid)
         reply.author = self.chat
+
         reply.type = MsgType.Image
         reply.mime = 'image/jpeg'
+        reply.file = imgfile
+        reply.path = imgpath
+        reply.filename = os.path.basename(reply.file.name)
+
         # reply.deliver_to = coordinator.master
         reply.deliver_to = coordinator.slaves[message.chat.module_id]
         # reply.target = message
