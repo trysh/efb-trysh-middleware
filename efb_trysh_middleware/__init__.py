@@ -180,7 +180,7 @@ class TryshMiddleware(EFBMiddleware):
         # reply.chat = coordinator.slaves[message.chat.channel_id].get_chat(message.chat.chat_uid)
         reply.chat = coordinator.slaves[message.chat.module_id].get_chat(message.chat.chat_uid)
         reply.author = self.chat
-        reply.type = MsgType.Image
+        reply.type = MsgType.Sticker
         reply.mime = 'image/gif'
         # reply.deliver_to = coordinator.master
         reply.deliver_to = coordinator.slaves[message.chat.module_id]
