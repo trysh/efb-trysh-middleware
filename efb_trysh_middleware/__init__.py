@@ -138,7 +138,7 @@ class TryshMiddleware(EFBMiddleware):
                     # Image.open(img_file)
                     fname = ''
                     locals()
-                    with tempfile.NamedTemporaryFile('w+t', suffix=".jpg") as f:
+                    with tempfile.NamedTemporaryFile('w+b', suffix=".jpg") as f:
                         im3.save(f, 'JPEG')
                         fname = f.name
                         # img_file = open(fname, )
