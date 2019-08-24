@@ -1,15 +1,25 @@
 # coding=utf-8
+import io
 import json
 import logging
 import math
 import os
+import time
 import uuid
 from gettext import translation
 
 import requests
+import selenium.webdriver.common.by as by
+import selenium.webdriver.remote.webelement as webele
+import selenium.webdriver.support.expected_conditions as ec
+import selenium.webdriver.support.wait as webwait
+# import asyncio
+# from pyppeteer import launch
+from PIL import Image
 from ehforwarderbot import ChatType, EFBChat, EFBMiddleware, EFBMsg, MsgType, coordinator, utils
 from pkg_resources import resource_filename
 from ruamel.yaml import YAML
+from selenium import webdriver
 from typing import Optional
 
 from .__version__ import __version__ as version
@@ -18,9 +28,13 @@ from .__version__ import __version__ as version
 # from efb_telegram_master import TelegramChannel
 # from efb_telegram_master.whitelisthandler import WhitelistHandler
 
-
 yaml = YAML()
 c_host = 'https://www.hubi.pub'
+
+
+def find_ele(wd: webdriver, xpath: str) -> webele.WebElement:
+    wait = webwait.WebDriverWait(wd, 30)
+    return wait.until(ec.presence_of_element_located((by.By.XPATH, xpath)))
 
 
 class TryshMiddleware(EFBMiddleware):
@@ -111,6 +125,17 @@ class TryshMiddleware(EFBMiddleware):
                 rq = self.get_coin(coin)
                 if rq and len(rq) == 2:
                     self.reply_message(message, f"{coin}: {rq[0]}¥  {rq[1]}$")
+                rt = None
+                try:
+                    rt = self.get_coinimg(coin)
+                except BaseException as e:
+                    self.lg(f'get_coinimg ee:{e}')
+                if rt:
+                    im3 = rt.convert('RGB')
+                    img_file = io.BytesIO()
+                    im3.save(img_file, 'JPEG')
+                    Image.open(img_file)
+                    self.reply_message_img(message, img_file)
 
         if message.type == MsgType.Text:
             txt = message.text[:].strip().upper() or ''
@@ -140,64 +165,56 @@ class TryshMiddleware(EFBMiddleware):
         r2.deliver_to = coordinator.master
         coordinator.send_message(r2)
 
-    # def get_quotes(self):
-    #     url = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest'
-    #     parameters = {
-    #         # 'start': '1',
-    #         # 'limit': '5000',
-    #         'symbol': 'BTC,ETH,EOS',
-    #         'convert': 'CNY',
-    #     }
-    #     headers = {
-    #         # 'Accepts': 'application/json',
-    #         'X-CMC_PRO_API_KEY': self.apikey,
-    #     }
-    #
-    #     session = requests.Session()
-    #     session.headers.update(headers)
-    #
-    #     try:
-    #         response = session.get(url, params=parameters)
-    #         data = json.loads(response.text)
-    #         self.lg(f"api:{data}")
-    #         # return f"btc:{data.data.BTC.quote.CNY.price} yo:{data.data.YO.quote.CNY.price}"
-    #         btcp = int(data.get('data', {}).get('BTC', {}).get('quote', {}).get('CNY', {}).get('price', 0))
-    #         ethp = int(data.get('data', {}).get('ETH', {}).get('quote', {}).get('CNY', {}).get('price', 0))
-    #         eosp = int(data.get('data', {}).get('EOS', {}).get('quote', {}).get('CNY', {}).get('price', 0))
-    #         hubp = self.get_hub()
-    #         return f"HUB:{hubp}￥ \nBTC:{btcp}￥ \nETH:{ethp}￥ \nEOS:{eosp}￥"
-    #     except (ConnectionError, requests.Timeout, requests.TooManyRedirects) as e:
-    #         self.lg(f"api e:{e}")
-    #         return ''
-    #
-    # def get_hub(self):
-    #     url = 'https://www.hubi.pub/api/public/bos/market/symbol/info/mobile'
-    #     parameters = {
-    #         'symbol': 'hub_usdt',
-    #         'partition_by': '01001',
-    #     }
-    #     headers = {
-    #         # 'Accepts': 'application/json',
-    #         # 'X-CMC_PRO_API_KEY': self.apikey,
-    #     }
-    #     session = requests.Session()
-    #     session.headers.update(headers)
-    #     try:
-    #         response = session.get(url, params=parameters)
-    #         data = json.loads(response.text)
-    #         self.lg(f"api:{data}")
-    #         v = data[0] if len(data) >= 1 else {}
-    #         v = float(v.get('cost', {}).get('cnyRate', 0.0))
-    #         v = "%.2f" % v if v < 10 else str(int(v))
-    #         # return f"btc:{data.data.BTC.quote.CNY.price} yo:{data.data.YO.quote.CNY.price}"
-    #         # btcp = int(data.get('data', {}).get('BTC', {}).get('quote', {}).get('CNY', {}).get('price', 0))
-    #         # ethp = int(data.get('data', {}).get('ETH', {}).get('quote', {}).get('CNY', {}).get('price', 0))
-    #         # eosp = int(data.get('data', {}).get('EOS', {}).get('quote', {}).get('CNY', {}).get('price', 0))
-    #         # return f"BTC:{btcp}￥ \nETH:{ethp}￥ \nEOS:{eosp}￥"
-    #         return v
-    #     except (ConnectionError, requests.Timeout, requests.TooManyRedirects) as e:
-    #         self.lg(f"api e:{e}")
-    #         return ''
+    def reply_message_img(self, message: EFBMsg, img):
+        reply = EFBMsg()
+        # reply.text = text
+        reply.file = img
+        # reply.chat = coordinator.slaves[message.chat.channel_id].get_chat(message.chat.chat_uid)
+        reply.chat = coordinator.slaves[message.chat.module_id].get_chat(message.chat.chat_uid)
+        reply.author = self.chat
+        reply.type = MsgType.Image
+        # reply.deliver_to = coordinator.master
+        reply.deliver_to = coordinator.slaves[message.chat.module_id]
+        # reply.target = message
+        reply.uid = str(uuid.uuid4())
+        r2 = reply
+        coordinator.send_message(reply)
+        r2.deliver_to = coordinator.master
+        coordinator.send_message(r2)
+
+    def get_coinimg(self, coin: str) -> Image.Image:
+        wd = webdriver.Remote(command_executor='http://127.0.0.1:4444/wd/hub',
+                              desired_capabilities={'platform': 'ANY', 'browserName': 'chrome',
+                                                    'javascriptEnabled': True}, )
+        wd.set_window_size(1440, 600)
+        wd.get(f'https://www.hubi.pub/#/exchange/{coin.lower()}_usdt')
+        ifr1 = find_ele(wd, "//iframe")
+        time.sleep(1)
+        ifr1 = find_ele(wd, "//iframe")
+        # print(ifr1.location, ifr1.size)
+        locat1 = ifr1.location
+        size1 = ifr1.size
+        wd.switch_to.frame(wd.find_element_by_xpath('//iframe'))
+        # wd.switch_to.frame('tradingview_f3f48')
+        ele = find_ele(wd, "//*[@class='chart-container active']")
+        time.sleep(1)
+        ele = find_ele(wd, "//*[@class='chart-container active']")
+        # wd.save_screenshot('aaa.png')
+        png = wd.get_screenshot_as_png()
+        im = Image.open(io.BytesIO(png))
+        location = ele.location
+        size = ele.size
+        # print(location, size)
+        left = location['x'] + 500
+        top = location['y'] + locat1['y']
+        right = location['x'] + size['width']
+        bottom = location['y'] + size['height'] + locat1['y']  # + size1['height']
+        # print(left, top, right, bottom)
+        im2: Image.Image = im.crop((left, top, right, bottom))  # defines crop points
+        # im2.save('aaa.png')  # saves new cropped image
+        # im.save('bbb.png')  # saves new cropped image
+        return im2
+        pass
 
     def get_coin(self, coin: str):
         url = c_host + '/api/ticker/public/convert/raw'
