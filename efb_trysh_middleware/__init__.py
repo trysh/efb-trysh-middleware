@@ -231,15 +231,25 @@ class TryshMiddleware(EFBMiddleware):
         # time.sleep(1)
         # ele = find_ele(wd, "//*[@class='chart-container active']")
         # wd.save_screenshot('aaa.png')
-        png = wd.get_screenshot_as_png()
+        png = ele.screenshot_as_png
         im = Image.open(io.BytesIO(png))
         location = ele.location
         size = ele.size
+        # #
+        # # rele = ele
+        # # while True:
+        # #     print('parent', rele.location)
+        # #     tele = rele.find_element_by_xpath('..')
+        # #     if tele and getattr(tele, 'location', None):
+        # #         rele = tele
+        # #     else:
+        # #         break
+        #
         # print(location, size)
-        left = location['x'] + 450
-        top = location['y'] + locat1['y']
-        right = location['x'] + size['width']
-        bottom = location['y'] + size['height'] + locat1['y']  # + size1['height']
+        left = 450
+        top = 1
+        right = size['width'] - 5
+        bottom = size['height'] - 3  # + size1['height']
         # print(left, top, right, bottom)
         im2: Image.Image = im.crop((left, top, right, bottom))  # defines crop points
         # im2.save('aaa.png')  # saves new cropped image
