@@ -5,7 +5,6 @@ import logging
 import math
 import os
 import tempfile
-import time
 import uuid
 from gettext import translation
 
@@ -215,29 +214,29 @@ class TryshMiddleware(EFBMiddleware):
         coordinator.send_message(r2)
 
     def get_coinimg(self, coin: str) -> Image.Image:
-        wd = webdriver.Remote(command_executor='http://127.0.0.1:4444/wd/hub',
+        wd = webdriver.Remote(command_executor='http://selenium:4444/wd/hub',
                               desired_capabilities={'platform': 'ANY', 'browserName': 'chrome',
                                                     'javascriptEnabled': True}, )
         wd.set_window_size(1440, 600)
-        wd.get(f'https://www.hubi.pub/#/exchange/{coin.lower()}_usdt')
+        wd.get(f'https://www.hubi.com/#/exchange/{coin.lower()}_usdt')
         ifr1 = find_ele(wd, "//iframe")
-        time.sleep(1)
-        ifr1 = find_ele(wd, "//iframe")
+        # time.sleep(1)
+        # ifr1 = find_ele(wd, "//iframe")
         # print(ifr1.location, ifr1.size)
         locat1 = ifr1.location
         size1 = ifr1.size
         wd.switch_to.frame(wd.find_element_by_xpath('//iframe'))
         # wd.switch_to.frame('tradingview_f3f48')
         ele = find_ele(wd, "//*[@class='chart-container active']")
-        time.sleep(1)
-        ele = find_ele(wd, "//*[@class='chart-container active']")
+        # time.sleep(1)
+        # ele = find_ele(wd, "//*[@class='chart-container active']")
         # wd.save_screenshot('aaa.png')
         png = wd.get_screenshot_as_png()
         im = Image.open(io.BytesIO(png))
         location = ele.location
         size = ele.size
         # print(location, size)
-        left = location['x'] + 500
+        left = location['x'] + 450
         top = location['y'] + locat1['y']
         right = location['x'] + size['width']
         bottom = location['y'] + size['height'] + locat1['y']  # + size1['height']
@@ -246,6 +245,7 @@ class TryshMiddleware(EFBMiddleware):
         # im2.save('aaa.png')  # saves new cropped image
         # im.save('bbb.png')  # saves new cropped image
         wd.close()
+        wd.quit()
         return im2
         pass
 
