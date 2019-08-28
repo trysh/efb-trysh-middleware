@@ -105,7 +105,7 @@ class TryshMiddleware(EFBMiddleware):
         self.chat.chat_type = ChatType.System
 
         self.logger = logging.getLogger("trysh.trysh")
-        self.logger.debug("trysh init ok")
+        self.logger.debug(f"trysh init ok v:{__version__}")
         # self.logger.setLevel(99)
 
     def lg(self, msg):  # , *args, **kwargs):
@@ -246,17 +246,17 @@ class TryshMiddleware(EFBMiddleware):
         # #         break
         #
         # print(location, size)
-        left = 450
-        top = 1
+        left = 203
+        top = 27
         right = size['width'] - 5
         bottom = size['height'] - 3  # + size1['height']
         # print(left, top, right, bottom)
-        # im2: Image.Image = im.crop((left, top, right, bottom))  # defines crop points
+        im2: Image.Image = im.crop((left, top, right, bottom))  # defines crop points
         # im2.save('aaa.png')  # saves new cropped image
         # im.save('bbb.png')  # saves new cropped image
         wd.close()
         wd.quit()
-        return im  # im2
+        return im2  # im2
         pass
 
     def get_coin(self, coin: str):
