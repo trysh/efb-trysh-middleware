@@ -217,7 +217,7 @@ class TryshMiddleware(EFBMiddleware):
         wd = webdriver.Remote(command_executor='http://selenium:4444/wd/hub',
                               desired_capabilities={'platform': 'ANY', 'browserName': 'chrome',
                                                     'javascriptEnabled': True}, )
-        wd.set_window_size(1440, 600)
+        wd.set_window_size(1440, 900)
         wd.get(f'https://www.hubi.com/#/exchange/{coin.lower()}_usdt')
         ifr1 = find_ele(wd, "//iframe")
         # time.sleep(1)
@@ -251,12 +251,12 @@ class TryshMiddleware(EFBMiddleware):
         right = size['width'] - 5
         bottom = size['height'] - 3  # + size1['height']
         # print(left, top, right, bottom)
-        im2: Image.Image = im.crop((left, top, right, bottom))  # defines crop points
+        # im2: Image.Image = im.crop((left, top, right, bottom))  # defines crop points
         # im2.save('aaa.png')  # saves new cropped image
         # im.save('bbb.png')  # saves new cropped image
         wd.close()
         wd.quit()
-        return im2
+        return im  # im2
         pass
 
     def get_coin(self, coin: str):
