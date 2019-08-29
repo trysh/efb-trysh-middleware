@@ -105,7 +105,7 @@ class TryshMiddleware(EFBMiddleware):
         self.chat.chat_type = ChatType.System
 
         self.logger = logging.getLogger("trysh.trysh")
-        self.logger.debug(f"trysh init ok v:{__version__}")
+        self.logger.log(99, f"trysh init ok v:{version}")
         # self.logger.setLevel(99)
 
     def lg(self, msg):  # , *args, **kwargs):
@@ -114,8 +114,6 @@ class TryshMiddleware(EFBMiddleware):
     def process_message(self, message: EFBMsg) -> Optional[EFBMsg]:
         self.lg(f"Received:{message} | author:{message.author} | chat:{message.chat} | target:{message.target} | \
  chatt:{message.chat.chat_type} | cmd:{message.commands}")
-        # self.lg("Received message: %s |author:%s |chat:%s |type:%s |target:%s",
-        #         message, message.author, message.chat, message.type, message.target)
         # if not message.type == MsgType.Text:
         #     return message
         coins = ('HUB', 'BTC', 'ETH', 'EOS')
@@ -227,6 +225,7 @@ class TryshMiddleware(EFBMiddleware):
         size1 = ifr1.size
         wd.switch_to.frame(wd.find_element_by_xpath('//iframe'))
         # wd.switch_to.frame('tradingview_f3f48')
+        find_ele(wd, "//*[@class='chart-markup-table pane']/div/canvas[2]")
         ele = find_ele(wd, "//*[@class='chart-container active']")
         # time.sleep(1)
         # ele = find_ele(wd, "//*[@class='chart-container active']")
