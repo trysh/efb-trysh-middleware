@@ -5,6 +5,7 @@ import logging
 import math
 import os
 import tempfile
+import time
 import uuid
 from gettext import translation
 
@@ -226,6 +227,7 @@ class TryshMiddleware(EFBMiddleware):
         wd.switch_to.frame(wd.find_element_by_xpath('//iframe'))
         # wd.switch_to.frame('tradingview_f3f48')
         find_ele(wd, "//*[@class='chart-markup-table pane']/div/canvas[2]")
+        time.sleep(3)
         ele = find_ele(wd, "//*[@class='chart-container active']")
         # time.sleep(1)
         # ele = find_ele(wd, "//*[@class='chart-container active']")
