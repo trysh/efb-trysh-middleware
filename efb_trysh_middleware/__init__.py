@@ -146,13 +146,18 @@ class TryshMiddleware(EFBMiddleware):
                     # img_file = open(fname, )
                     self.reply_message_img(message, im3)
 
-        if message.type == MsgType.Text and (not message or not message.chat or message.chat.__str__().index(
-                'HUB俱乐部') <= 0):  # chat:<EFBChat: HUB俱乐部 (7e68e4ef) @ WeChat Slave>
-            txt = message.text[:].strip().upper() or ''
-            # if False and txt.startswith('/') and len(txt) >= 2:
-            #     pass  # coin_re(txt[1:])
-            if txt in coins:
-                coin_re(txt)
+        if not message or message.type != MsgType.Text:
+            return message
+
+        if not message or not message.chat or 'HUB俱乐部' in message.chat.__str__().index():
+            return message
+
+        # if message.type == MsgType.Text and fi == -1:  # chat:<EFBChat: HUB俱乐部 (7e68e4ef) @ WeChat Slave>
+        txt = message.text[:].strip().upper() or ''
+        # if False and txt.startswith('/') and len(txt) >= 2:
+        #     pass  # coin_re(txt[1:])
+        if txt in coins:
+            coin_re(txt)
         # if message.type == MsgType.Text:
         #     txt = message.text[:].strip().lower() or ''
         #     if txt == 'disnot':
