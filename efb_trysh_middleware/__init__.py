@@ -116,6 +116,7 @@ class TryshMiddleware(EFBMiddleware):
         self.lg(f"Received:message:{message}\n"
                 f"chat:{message.chat, message.chat.chat_type}\n"
                 f"msgtype:{message.mime, message.type, message.filename, message.file}\n"
+                f"deliver_to:{message.deliver_to}\n"
                 f"author:{message.author} | target:{message.target} ")
 
         # 处理"telegram图片长高比>=20.0无法预览"问题
@@ -356,16 +357,29 @@ class TryshMiddleware(EFBMiddleware):
         if not message or not message.file or not message.filename:
             return
         if message.author == self.chat:
-            self.lg('self')
+            # self.lg('self')
             return
-        return
+
         try:
             message.file.seek(0)
             fbs = message.file.read()
             message.file.seek(0)
-            im = Image.open(io.BytesIO(fbs))
+            im: Image.Image = Image.open(io.BytesIO(fbs))
 
-            im3 = im.convert('RGB')
+            for _ in range(100):
+                max_size = max(im.size)
+                min_size = min(im.size)
+                img_ratio = max_size / min_size
+                if img_ratio >= 20.0:
+                    if im.width == min_size:
+                        im = im.resize((im.width * 2, im.height))
+                    else:
+                        im = im.resize((im.width, im.height * 2))
+                    continue
+                else:
+                    break
+
+            im3 = im.copy()  # im.convert('RGB')
             reply = EFBMsg()
             # reply.text = text
             # reply.chat = coordinator.slaves[message.chat.channel_id].get_chat(message.chat.chat_uid)
