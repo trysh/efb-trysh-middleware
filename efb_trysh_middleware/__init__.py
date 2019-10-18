@@ -370,11 +370,11 @@ class TryshMiddleware(EFBMiddleware):
                 max_size = max(im.size)
                 min_size = min(im.size)
                 img_ratio = max_size / min_size
-                if img_ratio >= 20.0:
+                if img_ratio >= 21.0:
                     if im.width == min_size:
-                        im = im.resize((im.width * 2, im.height))
+                        im = im.resize((im.width * 2, im.height), box=(0, 0, 0, 0))
                     else:
-                        im = im.resize((im.width, im.height * 2))
+                        im = im.resize((im.width, im.height * 2), box=(0, 0, 0, 0))
                     continue
                 else:
                     break
