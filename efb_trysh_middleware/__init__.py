@@ -133,7 +133,7 @@ class TryshMiddleware(EFBMiddleware):
         # if False and txt.startswith('/') and len(txt) >= 2:
         #     pass  # coin_re(txt[1:])
 
-        self.coin_re(txt)
+        self.coin_re(txt, message)
 
         return message
 
