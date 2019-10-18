@@ -117,37 +117,10 @@ class TryshMiddleware(EFBMiddleware):
                 f"chat:{message.chat, message.chat.chat_type}\n"
                 f"msgtype:{message.mime, message.type, message.filename, message.file}\n"
                 f"author:{message.author} | target:{message.target} ")
-        # if not message.type == MsgType.Text:
-        #     return message
 
-        coins = ('HUB', 'BTC', 'ETH', 'EOS')
-
-        def coin_re(coin: str):
-            if coin in coins:
-                rq = self.get_coin(coin)
-                if rq and len(rq) == 2:
-                    self.reply_message(message, f"{coin}: {rq[0]}¥  {rq[1]}$")
-                rt = None
-                try:
-                    rt = self.get_coinimg(coin)
-                except BaseException as e:
-                    self.lg(f'get_coinimg ee:{e}')
-                if rt:
-                    im3 = rt.convert('RGB')
-                    # img_file = io.BytesIO()
-                    # im3.save(img_file, 'JPEG')
-                    # Image.open(img_file)
-
-                    # f = tempfile.NamedTemporaryFile(suffix='.jpg')
-                    # img_data = io.BytesIO()
-                    # im3.save(img_data, format='jpeg')
-                    # f.write(img_data.getvalue())
-                    # f.file.seek(0)
-                    # with tempfile.NamedTemporaryFile('w+b', suffix=".jpg") as f:
-                    # im3.save(f, 'jpeg')
-                    # fname = f.name
-                    # img_file = open(fname, )
-                    self.reply_message_img(message, im3)
+        # 处理"telegram图片长高比>=20.0无法预览"问题
+        if message and message.type == MsgType.Image:
+            self.handle_tg_img_preview(message)
 
         if not message or message.type != MsgType.Text:
             return message
@@ -159,8 +132,8 @@ class TryshMiddleware(EFBMiddleware):
         txt = message.text[:].strip().upper() or ''
         # if False and txt.startswith('/') and len(txt) >= 2:
         #     pass  # coin_re(txt[1:])
-        if txt in coins:
-            coin_re(txt)
+
+        self.coin_re(txt)
 
         return message
 
@@ -350,6 +323,71 @@ class TryshMiddleware(EFBMiddleware):
         except (ConnectionError, requests.Timeout, requests.TooManyRedirects, BaseException) as e:
             self.lg(f"api e:{e}")
             return ()
+
+    def coin_re(self, coin: str, message: EFBMsg):
+        coins = ('HUB', 'BTC', 'ETH', 'EOS')
+        if coin in coins:
+            rq = self.get_coin(coin)
+            if rq and len(rq) == 2:
+                self.reply_message(message, f"{coin}: {rq[0]}¥  {rq[1]}$")
+            rt = None
+            try:
+                rt = self.get_coinimg(coin)
+            except BaseException as e:
+                self.lg(f'get_coinimg ee:{e}')
+            if rt:
+                im3 = rt.convert('RGB')
+                # img_file = io.BytesIO()
+                # im3.save(img_file, 'JPEG')
+                # Image.open(img_file)
+
+                # f = tempfile.NamedTemporaryFile(suffix='.jpg')
+                # img_data = io.BytesIO()
+                # im3.save(img_data, format='jpeg')
+                # f.write(img_data.getvalue())
+                # f.file.seek(0)
+                # with tempfile.NamedTemporaryFile('w+b', suffix=".jpg") as f:
+                # im3.save(f, 'jpeg')
+                # fname = f.name
+                # img_file = open(fname, )
+                self.reply_message_img(message, im3)
+
+    def handle_tg_img_preview(self, message: EFBMsg):
+        if not message or not message.file or not message.filename:
+            return
+        try:
+            message.file.seek(0)
+            fbs = message.file.read()
+            message.file.seek(0)
+            im = Image.open(io.BytesIO(fbs))
+
+            im3 = im.convert('RGB')
+            reply = EFBMsg()
+            # reply.text = text
+            # reply.chat = coordinator.slaves[message.chat.channel_id].get_chat(message.chat.chat_uid)
+            reply.chat = coordinator.slaves[message.chat.module_id].get_chat(message.chat.chat_uid)
+            reply.author = self.chat
+
+            reply.type = MsgType.Image
+            reply.mime = 'image/png'
+            f = tempfile.NamedTemporaryFile(suffix='.png')
+            img_data = io.BytesIO()
+            im3.save(img_data, format='png')
+            f.write(img_data.getvalue())
+            f.file.seek(0)
+            reply.file = f
+            reply.path = f.name
+            reply.filename = os.path.basename(reply.file.name)
+
+            # reply.deliver_to = coordinator.master
+            reply.deliver_to = coordinator.master
+            # reply.target = message
+            reply.uid = str(uuid.uuid4())
+            coordinator.send_message(reply)
+
+        except BaseException as e:
+            self.lg(f'handle_tg_img_preview e:{e}')
+        pass
 
 # def test_get_coin():
 #     t = TryshMiddleware()
