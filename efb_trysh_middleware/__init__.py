@@ -373,12 +373,13 @@ class TryshMiddleware(EFBMiddleware):
                 img_ratio = max_size / min_size
                 if img_ratio >= 41.0:
                     if im.width == min_size:
-                        im = im.resize((im.width * 2, im.height), box=(0, 0, 1, 1))
+                        im = im.resize((im.width * 2, im.height), box=(0, 0, 0, 0))
                     else:
-                        im = im.resize((im.width, im.height * 2), box=(0, 0, 1, 1))
+                        im = im.resize((im.width, im.height * 2), box=(0, 0, 0, 0))
                     continue
                 else:
                     break
+
             im.paste(im2, (0, 0, im2.width, im2.height))
 
             im3 = im.copy()  # im.convert('RGB')
