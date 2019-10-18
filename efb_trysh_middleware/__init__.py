@@ -113,10 +113,13 @@ class TryshMiddleware(EFBMiddleware):
         self.logger.log(99, msg)  # , *args, **kwargs)
 
     def process_message(self, message: EFBMsg) -> Optional[EFBMsg]:
-        self.lg(f"Received:{message} | author:{message.author} | chat:{message.chat} | target:{message.target} | \
- chatt:{message.chat.chat_type} | cmd:{message.commands}")
+        self.lg(f"Received:message:{message}\n"
+                f"chat:{message.chat, message.chat.chat_type}\n"
+                f"msgtype:{message.mime, message.type, message.filename, message.file}\n"
+                f"author:{message.author} | target:{message.target} ")
         # if not message.type == MsgType.Text:
         #     return message
+
         coins = ('HUB', 'BTC', 'ETH', 'EOS')
 
         def coin_re(coin: str):
@@ -151,17 +154,14 @@ class TryshMiddleware(EFBMiddleware):
 
         if not message or not message.chat or 'HUB俱乐部' in message.chat.__str__():
             return message
+        # chat:<EFBChat: HUB俱乐部 (7e68e4ef) @ WeChat Slave>
 
-        # if message.type == MsgType.Text and fi == -1:  # chat:<EFBChat: HUB俱乐部 (7e68e4ef) @ WeChat Slave>
         txt = message.text[:].strip().upper() or ''
         # if False and txt.startswith('/') and len(txt) >= 2:
         #     pass  # coin_re(txt[1:])
         if txt in coins:
             coin_re(txt)
-        # if message.type == MsgType.Text:
-        #     txt = message.text[:].strip().lower() or ''
-        #     if txt == 'disnot':
-        #         print('disnot')
+
         return message
 
     def reply_message(self, message: EFBMsg, text: str):
