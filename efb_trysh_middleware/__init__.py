@@ -355,6 +355,10 @@ class TryshMiddleware(EFBMiddleware):
     def handle_tg_img_preview(self, message: EFBMsg):
         if not message or not message.file or not message.filename:
             return
+        if message.author == self.chat:
+            self.lg('self')
+            return
+        return
         try:
             message.file.seek(0)
             fbs = message.file.read()
