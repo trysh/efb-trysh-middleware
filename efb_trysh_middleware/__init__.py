@@ -366,11 +366,12 @@ class TryshMiddleware(EFBMiddleware):
             message.file.seek(0)
             im: Image.Image = Image.open(io.BytesIO(fbs))
 
+            im2 = im.copy()
             for _ in range(100):
                 max_size = max(im.size)
                 min_size = min(im.size)
                 img_ratio = max_size / min_size
-                if img_ratio >= 21.0:
+                if img_ratio >= 31.0:
                     if im.width == min_size:
                         im = im.resize((im.width * 2, im.height), box=(0, 0, 0, 0))
                     else:
@@ -378,6 +379,7 @@ class TryshMiddleware(EFBMiddleware):
                     continue
                 else:
                     break
+            im.paste(im2, (0, 0, im2.width, im2.height))
 
             im3 = im.copy()  # im.convert('RGB')
             reply = EFBMsg()
