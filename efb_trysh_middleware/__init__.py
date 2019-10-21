@@ -359,6 +359,8 @@ class TryshMiddleware(EFBMiddleware):
         if message.author == self.chat:
             # self.lg('self')
             return
+        if message.type != MsgType.Image:
+            return
 
         try:
             message.file.seek(0)
@@ -366,12 +368,18 @@ class TryshMiddleware(EFBMiddleware):
             message.file.seek(0)
             im: Image.Image = Image.open(io.BytesIO(fbs))
 
+            max_size = max(im.size)
+            min_size = min(im.size)
+            img_ratio = max_size / min_size
+            if img_ratio < 10.0:
+                return
+
             im2 = im.copy()
             for _ in range(100):
                 max_size = max(im.size)
                 min_size = min(im.size)
                 img_ratio = max_size / min_size
-                if img_ratio >= 9.0:
+                if img_ratio >= 10.0:
                     if im.width == min_size:
                         im = im.resize((im.width * 2, im.height), box=(0, 0, 1, 1))
                     else:
