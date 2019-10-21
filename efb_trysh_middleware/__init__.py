@@ -113,11 +113,11 @@ class TryshMiddleware(EFBMiddleware):
         self.logger.log(99, msg)  # , *args, **kwargs)
 
     def process_message(self, message: EFBMsg) -> Optional[EFBMsg]:
-        self.lg(f"Received:message:{message}\n"
-                f"chat:{message.chat, message.chat.chat_type}\n"
-                f"msgtype:{message.mime, message.type, message.filename, message.file}\n"
-                f"deliver_to:{message.deliver_to}\n"
-                f"author:{message.author} | target:{message.target} ")
+        # self.lg(f"Received:message:{message}\n"
+        #         f"chat:{message.chat, message.chat.chat_type}\n"
+        #         f"msgtype:{message.mime, message.type, message.filename, message.file}\n"
+        #         f"deliver_to:{message.deliver_to}\n"
+        #         f"author:{message.author} | target:{message.target} ")
 
         # 处理"telegram图片长高比>=20.0无法预览"问题
         if message and message.type == MsgType.Image:
