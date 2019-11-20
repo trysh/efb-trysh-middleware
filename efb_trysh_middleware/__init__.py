@@ -34,7 +34,7 @@ c_host = 'https://www.hubi.pub'
 
 
 def find_ele(wd: webdriver, xpath: str) -> webele.WebElement:
-    wait = webwait.WebDriverWait(wd, 30)
+    wait = webwait.WebDriverWait(wd, 50)
     return wait.until(ec.presence_of_element_located((by.By.XPATH, xpath)))
 
 
@@ -197,7 +197,8 @@ class TryshMiddleware(EFBMiddleware):
                               desired_capabilities={'platform': 'ANY', 'browserName': 'chrome',
                                                     'javascriptEnabled': True}, )
         wd.set_window_size(1440, 900)
-        wd.get(f'https://www.hubi.com/#/exchange/{coin.lower()}_usdt')
+        # wd.get(f'https://www.hubi.pub/#/exchange/{coin.lower()}_usdt')
+        wd.get(f'https://www.hubi.pub/zh/exchange/{coin.upper()}_USDT')
         ifr1 = find_ele(wd, "//iframe")
         # time.sleep(1)
         # ifr1 = find_ele(wd, "//iframe")
@@ -207,7 +208,7 @@ class TryshMiddleware(EFBMiddleware):
         wd.switch_to.frame(wd.find_element_by_xpath('//iframe'))
         # wd.switch_to.frame('tradingview_f3f48')
         find_ele(wd, "//*[@class='chart-markup-table pane']/div/canvas[2]")
-        time.sleep(3)
+        time.sleep(1)
         ele = find_ele(wd, "//*[@class='chart-container active']")
         # time.sleep(1)
         # ele = find_ele(wd, "//*[@class='chart-container active']")
@@ -326,7 +327,7 @@ class TryshMiddleware(EFBMiddleware):
             return ()
 
     def coin_re(self, coin: str, message: EFBMsg):
-        coins = ('HUB', 'BTC', 'ETH', 'EOS')
+        coins = ('HUB', 'BTC', 'ETH', 'EOS', 'LTC', 'ETC', 'BCH')
         if coin in coins:
             rq = self.get_coin(coin)
             if rq and len(rq) == 2:
@@ -356,7 +357,7 @@ class TryshMiddleware(EFBMiddleware):
     def handle_tg_img_preview(self, message: EFBMsg):
         if not message or not message.file or not message.filename:
             return
-        if message.author == self.chat:
+        if message.author == self.chat:  # trysh-middleware
             # self.lg('self')
             return
         if message.type != MsgType.Image:
