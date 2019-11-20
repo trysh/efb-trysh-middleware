@@ -192,8 +192,8 @@ class TryshMiddleware(EFBMiddleware):
         r2.deliver_to = coordinator.master
         coordinator.send_message(r2)
 
-    def get_coinimg(self, coin: str) -> Image.Image:
-        wd = webdriver.Remote(command_executor='http://selenium:4444/wd/hub',
+    def get_coinimg(self, coin: str, seleurl: str = 'http://selenium:4444/wd/hub') -> Image.Image:
+        wd = webdriver.Remote(command_executor=seleurl,
                               desired_capabilities={'platform': 'ANY', 'browserName': 'chrome',
                                                     'javascriptEnabled': True}, )
         wd.set_window_size(1440, 900)
@@ -207,8 +207,15 @@ class TryshMiddleware(EFBMiddleware):
         size1 = ifr1.size
         wd.switch_to.frame(wd.find_element_by_xpath('//iframe'))
         # wd.switch_to.frame('tradingview_f3f48')
-        find_ele(wd, "//*[@class='chart-markup-table pane']/div/canvas[2]")
-        time.sleep(1)
+        find_ele(wd, "//*[@class='chart-markup-table pane']/div/canvas[1]")
+
+        logoele = find_ele(wd, "//*[@class='onchart-tv-logo wrapper expanded on-pane']")
+        wd.execute_script("""
+        var element = arguments[0];
+        element.parentNode.removeChild(element);
+        """, logoele)
+
+        time.sleep(0.1)
         ele = find_ele(wd, "//*[@class='chart-container active']")
         # time.sleep(1)
         # ele = find_ele(wd, "//*[@class='chart-container active']")
@@ -228,8 +235,8 @@ class TryshMiddleware(EFBMiddleware):
         # #         break
         #
         # print(location, size)
-        left = 203
-        top = 27
+        left = 0  # 203
+        top = 0 + 5  # 27
         right = size['width'] - 5
         bottom = size['height'] - 3  # + size1['height']
         # print(left, top, right, bottom)
