@@ -192,7 +192,7 @@ class TryshMiddleware(EFBMiddleware):
         r2.deliver_to = coordinator.master
         coordinator.send_message(r2)
 
-    def get_coinimg(self, coin: str, seleurl: str = 'http://selenium:4444/wd/hub') -> Image.Image:
+    def get_coinimg(self, coin: str, seleurl: str = 'http://127.0.0.1:4444/wd/hub') -> Image.Image:
         wd = webdriver.Remote(command_executor=seleurl,
                               desired_capabilities={'platform': 'ANY', 'browserName': 'chrome',
                                                     'javascriptEnabled': True}, )
