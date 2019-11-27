@@ -196,7 +196,7 @@ class TryshMiddleware(EFBMiddleware):
         wd = webdriver.Remote(command_executor=seleurl,
                               desired_capabilities={'platform': 'ANY', 'browserName': 'chrome',
                                                     'javascriptEnabled': True}, )
-        wd.set_window_size(1440, 900)
+        wd.set_window_size(1440 - 400, 900)
         # wd.get(f'https://www.hubi.pub/#/exchange/{coin.lower()}_usdt')
         wd.get(f'https://www.hubi.pub/zh/exchange/{coin.upper()}_USDT')
         ifr1 = find_ele(wd, "//iframe")
