@@ -11,7 +11,9 @@ import threading
 import time
 import uuid
 from gettext import translation
+from typing import Optional
 
+import pyppeteer
 import requests
 import selenium.webdriver.common.by as by
 import selenium.webdriver.remote.webelement as webele
@@ -24,7 +26,6 @@ from ehforwarderbot import ChatType, EFBChat, EFBMiddleware, EFBMsg, MsgType, co
 from pkg_resources import resource_filename
 from ruamel.yaml import YAML
 from selenium import webdriver
-from typing import Optional
 
 from .__version__ import __version__ as version
 
@@ -34,6 +35,11 @@ from .__version__ import __version__ as version
 
 yaml = YAML()
 c_host = 'https://www.hubi.pub'
+
+logging.basicConfig(level='INFO',
+                    format='File "%(filename)s", line %(lineno)d | %(asctime)s.%(msecs)03d | %(message)s',
+                    datefmt='%m%d %H:%M:%S')
+lg = logging.getLogger('')
 
 
 def find_ele(wd: webdriver, xpath: str) -> webele.WebElement:
@@ -345,9 +351,8 @@ class TryshMiddleware(EFBMiddleware):
             return
         if not self.t1:
             self.t1q = queue.Queue()
-            t1 = threading.Thread(target=tf1, args=(self.t1q, self))
-            t1.start()
-            self.t1 = t1
+            self.t1 = threading.Thread(target=tf1, args=(self.t1q, self))
+            self.t1.start()
 
         self.t1q.put_nowait((coin, message))
         return
@@ -447,6 +452,98 @@ class TryshMiddleware(EFBMiddleware):
 #     t.get_coin('hub')
 
 
+async def aget_coinimg(coin: str) -> Image.Image:
+    browser = await pyppeteer.launch({
+        'headless': True,  # 无头模式
+        'args': [
+            '--disable-extensions',
+            '--hide-scrollbars',
+            '--disable-bundled-ppapi-flash',
+            '--mute-audio',
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-gpu',
+        ],
+        'dumpio': True,
+        # 'loop': g_loop,
+        'handleSIGHUP': False,
+        'handleSIGTERM': False,
+        'handleSIGINT': False,
+    })
+    lg.info(f'browser:{browser}')
+    page = await browser.newPage()
+    rr = await page.evaluate("""
+            () =>{
+                Object.defineProperties(navigator,{
+                    webdriver:{
+                    get: () => false
+                    }
+                })
+            }
+        """)
+    # print(rr)
+    # rr = await page.evaluate('console.log(window.navigator.webdriver)')
+    # await page.goto('http://ip111.cn')
+    # await page.waitFor(200)
+    # # await asyncio.sleep(2)
+    # rr = await page.querySelector('.card-body')
+    # print(await rr.contentFrame())
+    # print(await page.querySelectorEval('div.card-body > p:nth-child(1)', '(v)=>{console.log(v.textContent)}'))
+    #
+    # await page.screenshot({'path': 'example.png'})
+    #
+    await page.setViewport({'width': 1440 - 400, 'height': 900})
+    lg.info(f'0')
+    await page.goto('https://www.hubi.pub/zh/exchange/BTC_USDT')
+    lg.info(f'a')
+    fra = await page.xpath('//iframe')
+    lg.info(f'b:{fra}')
+    fr = await fra[0].contentFrame()
+    lg.info(f'c{fr}')
+    await fr.waitForSelector('td.chart-markup-table.pane > div > canvas:nth-child(1)')
+    # await page.waitForSelector('td.chart-markup-table.pane > div > canvas:nth-child(1)')
+    lg.info(f'd')
+    logoele = await fr.querySelector('div.onchart-tv-logo')
+    lg.info(f'e{logoele}')
+    await fr.evaluate('(v) => {v.parentNode.removeChild(v);}', logoele)
+    await fr.waitForSelector("tr:nth-child(1) > td.chart-markup-table.pane > div > canvas:nth-child(1)")
+    # rr = await fr.querySelector("tr:nth-child(1) > td.chart-markup-table.pane > div > canvas:nth-child(1)")
+    # lg.info(f'f{rr}')
+    # rr = await (await rr.getProperty('nodeName')).jsonValue()
+    # lg.info(f'g{rr}')
+    rr = await fr.querySelector("div.chart-container.active")
+    lg.info(f'a{rr}')
+    imgdata = await rr.screenshot({'path': 'example.png'})
+    lg.info(f'b{len(imgdata)}')
+    # await asyncio.sleep(3)
+    await browser.close()
+    im = Image.open(io.BytesIO(imgdata))
+    size = dict()
+    size['width'] = int(await (await rr.getProperty('clientWidth')).jsonValue())
+    size['height'] = int(await (await rr.getProperty('clientHeight')).jsonValue())
+    # location = ele.location
+    # size = ele.size
+    # #
+    # # rele = ele
+    # # while True:
+    # #     print('parent', rele.location)
+    # #     tele = rele.find_element_by_xpath('..')
+    # #     if tele and getattr(tele, 'location', None):
+    # #         rele = tele
+    # #     else:
+    # #         break
+    #
+    # print(location, size)
+    left = 0  # 203
+    top = 0 + 5  # 27
+    right = size['width'] - 5
+    bottom = size['height'] - 3  # + size1['height']
+    # print(left, top, right, bottom)
+    im2: Image.Image = im.crop((left, top, right, bottom))  # defines crop points
+    return im2
+    pass
+
+
 async def tf1a(q: queue.Queue, tm: TryshMiddleware):
     while True:
         tk = q.get()
@@ -455,6 +552,8 @@ async def tf1a(q: queue.Queue, tm: TryshMiddleware):
         rq = tm.get_coin(coin)
         if rq and len(rq) == 2:
             tm.reply_message(message, f"{coin}: {rq[0]}¥  {rq[1]}$")
+        coinimg = await aget_coinimg(coin)
+
     pass
 
 

@@ -41,7 +41,7 @@ setup(
     ],
     install_requires=[
         "ehforwarderbot",
-        "requests",
+        "requests", 'selenium', 'PIL', 'pyppeteer'
         # "python-gnupg"
     ],
     entry_points={
