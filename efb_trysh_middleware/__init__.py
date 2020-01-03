@@ -1,10 +1,13 @@
 # coding=utf-8
+import asyncio
 import io
 import json
 import logging
 import math
 import os
+import queue
 import tempfile
+import threading
 import time
 import uuid
 from gettext import translation
@@ -108,6 +111,9 @@ class TryshMiddleware(EFBMiddleware):
         self.logger = logging.getLogger("trysh.trysh")
         self.logger.log(99, f"trysh init ok v:{version}")
         # self.logger.setLevel(99)
+
+        self.t1: threading.Thread = None
+        self.t1q: queue.Queue = None
 
     def lg(self, msg):  # , *args, **kwargs):
         self.logger.log(99, msg)  # , *args, **kwargs)
@@ -335,31 +341,40 @@ class TryshMiddleware(EFBMiddleware):
 
     def coin_re(self, coin: str, message: EFBMsg):
         coins = ('HUB', 'BTC', 'ETH', 'EOS', 'LTC', 'ETC', 'BCH')
-        if coin in coins:
-            rq = self.get_coin(coin)
-            if rq and len(rq) == 2:
-                self.reply_message(message, f"{coin}: {rq[0]}¥  {rq[1]}$")
-            rt = None
-            try:
-                rt = self.get_coinimg(coin)
-            except BaseException as e:
-                self.lg(f'get_coinimg ee:{e}')
-            if rt:
-                im3 = rt.convert('RGB')
-                # img_file = io.BytesIO()
-                # im3.save(img_file, 'JPEG')
-                # Image.open(img_file)
+        if coin not in coins:
+            return
+        if not self.t1:
+            self.t1q = queue.Queue()
+            t1 = threading.Thread(target=tf1, args=(self.t1q, self))
+            t1.start()
+            self.t1 = t1
 
-                # f = tempfile.NamedTemporaryFile(suffix='.jpg')
-                # img_data = io.BytesIO()
-                # im3.save(img_data, format='jpeg')
-                # f.write(img_data.getvalue())
-                # f.file.seek(0)
-                # with tempfile.NamedTemporaryFile('w+b', suffix=".jpg") as f:
-                # im3.save(f, 'jpeg')
-                # fname = f.name
-                # img_file = open(fname, )
-                self.reply_message_img(message, im3)
+        self.t1q.put_nowait((coin, message))
+        return
+        rq = self.get_coin(coin)
+        if rq and len(rq) == 2:
+            self.reply_message(message, f"{coin}: {rq[0]}¥  {rq[1]}$")
+        rt = None
+        try:
+            rt = self.get_coinimg(coin)
+        except BaseException as e:
+            self.lg(f'get_coinimg ee:{e}')
+        if rt:
+            im3 = rt.convert('RGB')
+            # img_file = io.BytesIO()
+            # im3.save(img_file, 'JPEG')
+            # Image.open(img_file)
+
+            # f = tempfile.NamedTemporaryFile(suffix='.jpg')
+            # img_data = io.BytesIO()
+            # im3.save(img_data, format='jpeg')
+            # f.write(img_data.getvalue())
+            # f.file.seek(0)
+            # with tempfile.NamedTemporaryFile('w+b', suffix=".jpg") as f:
+            # im3.save(f, 'jpeg')
+            # fname = f.name
+            # img_file = open(fname, )
+            self.reply_message_img(message, im3)
 
     def handle_tg_img_preview(self, message: EFBMsg):
         if not message or not message.file or not message.filename:
@@ -426,6 +441,25 @@ class TryshMiddleware(EFBMiddleware):
             self.lg(f'handle_tg_img_preview e:{e}')
         pass
 
+
 # def test_get_coin():
 #     t = TryshMiddleware()
 #     t.get_coin('hub')
+
+
+async def tf1a(q: queue.Queue, tm: TryshMiddleware):
+    while True:
+        tk = q.get()
+        coin: str = tk[0]
+        message: EFBMsg = tk[1]
+        rq = tm.get_coin(coin)
+        if rq and len(rq) == 2:
+            tm.reply_message(message, f"{coin}: {rq[0]}¥  {rq[1]}$")
+    pass
+
+
+def tf1(q: queue.Queue, tm: TryshMiddleware):
+    loop = asyncio.new_event_loop()
+    loop.run_until_complete(tf1a(q, tm))
+    # asyncio.run(main())
+    pass
