@@ -452,6 +452,11 @@ class TryshMiddleware(EFBMiddleware):
 #     t.get_coin('hub')
 
 
+async def close2(page, b):
+    await page.close()
+    await b.close()
+
+
 async def aget_coinimg(coin: str) -> Image.Image:
     browser = await pyppeteer.launch({
         'headless': True,  # 无头模式
@@ -522,7 +527,7 @@ async def aget_coinimg(coin: str) -> Image.Image:
     size['width'] = int(await (await rr.getProperty('clientWidth')).jsonValue())
     size['height'] = int(await (await rr.getProperty('clientHeight')).jsonValue())
 
-    await browser.close()
+    asyncio.get_event_loop().create_task(close2(page, browser))
 
     # location = ele.location
     # size = ele.size
