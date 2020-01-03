@@ -36,7 +36,7 @@ from .__version__ import __version__ as version
 yaml = YAML()
 c_host = 'https://www.hubi.pub'
 
-logging.basicConfig(level='INFO',
+logging.basicConfig(level='WARN',
                     format='File "%(filename)s", line %(lineno)d | %(asctime)s.%(msecs)03d | %(message)s',
                     datefmt='%m%d %H:%M:%S')
 lg = logging.getLogger('')
@@ -502,7 +502,7 @@ async def aget_coinimg(coin: str) -> Image.Image:
     #
     await page.setViewport({'width': 1440 - 400, 'height': 900})
     lg.info(f'0')
-    await page.goto('https://www.hubi.pub/zh/exchange/BTC_USDT')
+    await page.goto(f'https://www.hubi.pub/zh/exchange/{coin.upper()}_USDT')
     lg.info(f'a')
     fra = await page.xpath('//iframe')
     lg.info(f'b:{fra}')
