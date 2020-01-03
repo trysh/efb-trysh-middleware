@@ -464,7 +464,7 @@ async def aget_coinimg(coin: str) -> Image.Image:
             '--disable-setuid-sandbox',
             '--disable-gpu',
         ],
-        'dumpio': True,
+        # 'dumpio': True,
         # 'loop': g_loop,
         'handleSIGHUP': False,
         'handleSIGTERM': False,
@@ -516,11 +516,14 @@ async def aget_coinimg(coin: str) -> Image.Image:
     imgdata = await rr.screenshot({'path': 'example.png'})
     lg.info(f'b{len(imgdata)}')
     # await asyncio.sleep(3)
-    await browser.close()
+
     im = Image.open(io.BytesIO(imgdata))
     size = dict()
     size['width'] = int(await (await rr.getProperty('clientWidth')).jsonValue())
     size['height'] = int(await (await rr.getProperty('clientHeight')).jsonValue())
+
+    await browser.close()
+
     # location = ele.location
     # size = ele.size
     # #
