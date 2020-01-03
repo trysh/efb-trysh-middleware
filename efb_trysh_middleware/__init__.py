@@ -453,8 +453,11 @@ class TryshMiddleware(EFBMiddleware):
 
 
 async def close2(page, b):
-    await page.close()
-    await b.close()
+    lg.info('start close2')
+    rr = await page.close()
+    lg.info(f'start close2 {rr}')
+    rr = await b.close()
+    lg.info(f'start close2 {rr}')
 
 
 async def aget_coinimg(coin: str) -> Image.Image:
@@ -523,11 +526,13 @@ async def aget_coinimg(coin: str) -> Image.Image:
     # await asyncio.sleep(3)
 
     im = Image.open(io.BytesIO(imgdata))
+    lg.info(f'im:{im}')
     size = dict()
     size['width'] = int(await (await rr.getProperty('clientWidth')).jsonValue())
     size['height'] = int(await (await rr.getProperty('clientHeight')).jsonValue())
+    lg.info(f'size:{size}')
 
-    asyncio.get_event_loop().create_task(close2(page, browser))
+    asyncio.get_running_loop().create_task(close2(page, browser))
 
     # location = ele.location
     # size = ele.size
@@ -548,6 +553,7 @@ async def aget_coinimg(coin: str) -> Image.Image:
     bottom = size['height'] - 3  # + size1['height']
     # print(left, top, right, bottom)
     im2: Image.Image = im.crop((left, top, right, bottom))  # defines crop points
+    lg.info(f'im2:{im2}')
     return im2
     pass
 
@@ -560,7 +566,28 @@ async def tf1a(q: queue.Queue, tm: TryshMiddleware):
         rq = tm.get_coin(coin)
         if rq and len(rq) == 2:
             tm.reply_message(message, f"{coin}: {rq[0]}¥  {rq[1]}$")
-        coinimg = await aget_coinimg(coin)
+        # coinimg = await aget_coinimg(coin)
+        rt = None
+        try:
+            rt = await aget_coinimg(coin)
+        except BaseException as e:
+            tm.lg(f'get_coinimg ee:{e}')
+        if rt:
+            im3 = rt.convert('RGB')
+            # img_file = io.BytesIO()
+            # im3.save(img_file, 'JPEG')
+            # Image.open(img_file)
+
+            # f = tempfile.NamedTemporaryFile(suffix='.jpg')
+            # img_data = io.BytesIO()
+            # im3.save(img_data, format='jpeg')
+            # f.write(img_data.getvalue())
+            # f.file.seek(0)
+            # with tempfile.NamedTemporaryFile('w+b', suffix=".jpg") as f:
+            # im3.save(f, 'jpeg')
+            # fname = f.name
+            # img_file = open(fname, )
+            tm.reply_message_img(message, im3)
 
     pass
 
