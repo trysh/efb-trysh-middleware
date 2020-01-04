@@ -24,7 +24,7 @@ import selenium.webdriver.support.wait as webwait
 from PIL import Image
 from ehforwarderbot import ChatType, EFBChat, EFBMiddleware, EFBMsg, MsgType, coordinator, utils
 from pkg_resources import resource_filename
-from ruamel.yaml import YAML
+# from ruamel.yaml import YAML
 from selenium import webdriver
 
 from .__version__ import __version__ as version
@@ -33,7 +33,7 @@ from .__version__ import __version__ as version
 # from efb_telegram_master import TelegramChannel
 # from efb_telegram_master.whitelisthandler import WhitelistHandler
 
-yaml = YAML()
+# yaml = YAML()
 c_host = 'https://www.hubi.pub'
 
 logging.basicConfig(level='WARN',
@@ -92,13 +92,14 @@ class TryshMiddleware(EFBMiddleware):
             # raise EFBException(self._("GnuPG middleware is not configured."))
             pass
         else:
-            config = yaml.load(open(config_path))
-            # self.key = config['key']
-            # self.always_trust = config.get('always_trust', self.always_trust)
-            # self.binary = config.get('binary', self.binary)
-            # self.password = config.get('password', self.password)
-            # self.server = config.get('server', self.server)
-            self.apikey = config.get('apikey', self.apikey).strip()
+            pass
+            # config = yaml.load(open(config_path))
+            # # self.key = config['key']
+            # # self.always_trust = config.get('always_trust', self.always_trust)
+            # # self.binary = config.get('binary', self.binary)
+            # # self.password = config.get('password', self.password)
+            # # self.server = config.get('server', self.server)
+            # self.apikey = config.get('apikey', self.apikey).strip()
 
         # self.mappings_path = os.path.join(storage_path, "keymap.pkl")
         # if os.path.exists(self.mappings_path):
@@ -454,8 +455,8 @@ class TryshMiddleware(EFBMiddleware):
 
 async def close2(page, b):
     lg.info('start close2')
-    rr = await page.close()
-    lg.info(f'start close2 {rr}')
+    # rr = await page.close()
+    # lg.info(f'start close2 {rr}')
     rr = await b.close()
     lg.info(f'start close2 {rr}')
 
@@ -471,6 +472,7 @@ async def aget_coinimg(coin: str) -> Image.Image:
             '--no-sandbox',
             '--disable-setuid-sandbox',
             '--disable-gpu',
+            '--disable-infobars',
         ],
         # 'dumpio': True,
         # 'loop': g_loop,
@@ -489,17 +491,7 @@ async def aget_coinimg(coin: str) -> Image.Image:
                 })
             }
         """)
-    # print(rr)
-    # rr = await page.evaluate('console.log(window.navigator.webdriver)')
-    # await page.goto('http://ip111.cn')
-    # await page.waitFor(200)
-    # # await asyncio.sleep(2)
-    # rr = await page.querySelector('.card-body')
-    # print(await rr.contentFrame())
-    # print(await page.querySelectorEval('div.card-body > p:nth-child(1)', '(v)=>{console.log(v.textContent)}'))
-    #
-    # await page.screenshot({'path': 'example.png'})
-    #
+
     await page.setViewport({'width': 1440 - 400, 'height': 900})
     lg.info(f'0')
     await page.goto(f'https://www.hubi.pub/zh/exchange/{coin.upper()}_USDT')
@@ -521,7 +513,7 @@ async def aget_coinimg(coin: str) -> Image.Image:
     # lg.info(f'g{rr}')
     rr = await fr.querySelector("div.chart-container.active")
     lg.info(f'a{rr}')
-    imgdata = await rr.screenshot({'path': 'example.png'})
+    imgdata = await rr.screenshot()  # {'path': 'example.png'})
     lg.info(f'b{len(imgdata)}')
     # await asyncio.sleep(3)
 
@@ -560,12 +552,20 @@ async def aget_coinimg(coin: str) -> Image.Image:
 
 async def tf1a(q: queue.Queue, tm: TryshMiddleware):
     while True:
-        tk = q.get()
-        coin: str = tk[0]
-        message: EFBMsg = tk[1]
-        rq = tm.get_coin(coin)
-        if rq and len(rq) == 2:
-            tm.reply_message(message, f"{coin}: {rq[0]}¥  {rq[1]}$")
+        await asyncio.sleep(0.1)
+        try:
+            tk = q.get_nowait()
+            coin: str = tk[0]
+            message: EFBMsg = tk[1]
+            rq = tm.get_coin(coin)
+            if rq and len(rq) == 2:
+                tm.reply_message(message, f"{coin}: {rq[0]}¥  {rq[1]}$")
+        except queue.Empty:
+            await asyncio.sleep(0.1)
+            continue
+        except BaseException as e:
+            tm.lg(f'get_coin ee:{e}')
+            continue
         # coinimg = await aget_coinimg(coin)
         rt = None
         try:
@@ -573,21 +573,24 @@ async def tf1a(q: queue.Queue, tm: TryshMiddleware):
         except BaseException as e:
             tm.lg(f'get_coinimg ee:{e}')
         if rt:
-            im3 = rt.convert('RGB')
-            # img_file = io.BytesIO()
-            # im3.save(img_file, 'JPEG')
-            # Image.open(img_file)
+            try:
+                im3 = rt.convert('RGB')
+                # img_file = io.BytesIO()
+                # im3.save(img_file, 'JPEG')
+                # Image.open(img_file)
 
-            # f = tempfile.NamedTemporaryFile(suffix='.jpg')
-            # img_data = io.BytesIO()
-            # im3.save(img_data, format='jpeg')
-            # f.write(img_data.getvalue())
-            # f.file.seek(0)
-            # with tempfile.NamedTemporaryFile('w+b', suffix=".jpg") as f:
-            # im3.save(f, 'jpeg')
-            # fname = f.name
-            # img_file = open(fname, )
-            tm.reply_message_img(message, im3)
+                # f = tempfile.NamedTemporaryFile(suffix='.jpg')
+                # img_data = io.BytesIO()
+                # im3.save(img_data, format='jpeg')
+                # f.write(img_data.getvalue())
+                # f.file.seek(0)
+                # with tempfile.NamedTemporaryFile('w+b', suffix=".jpg") as f:
+                # im3.save(f, 'jpeg')
+                # fname = f.name
+                # img_file = open(fname, )
+                tm.reply_message_img(message, im3)
+            finally:
+                pass
 
     pass
 
