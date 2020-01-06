@@ -8,26 +8,26 @@ import os
 import queue
 import tempfile
 import threading
-import time
 import uuid
 from gettext import translation
 from typing import Optional
 
 import pyppeteer
 import requests
-import selenium.webdriver.common.by as by
-import selenium.webdriver.remote.webelement as webele
-import selenium.webdriver.support.expected_conditions as ec
-import selenium.webdriver.support.wait as webwait
+# from selenium import webdriver
+# import selenium.webdriver.common.by as by
+# import selenium.webdriver.remote.webelement as webele
+# import selenium.webdriver.support.expected_conditions as ec
+# import selenium.webdriver.support.wait as webwait
 # import asyncio
 # from pyppeteer import launch
 from PIL import Image
 from ehforwarderbot import ChatType, EFBChat, EFBMiddleware, EFBMsg, MsgType, coordinator, utils
 from pkg_resources import resource_filename
-# from ruamel.yaml import YAML
-from selenium import webdriver
 
 from .__version__ import __version__ as version
+
+# from ruamel.yaml import YAML
 
 # from ehforwarderbot import EFBMiddleware, coordinator
 # from efb_telegram_master import TelegramChannel
@@ -42,9 +42,10 @@ logging.basicConfig(level='WARN',
 lg = logging.getLogger('')
 
 
-def find_ele(wd: webdriver, xpath: str) -> webele.WebElement:
-    wait = webwait.WebDriverWait(wd, 50)
-    return wait.until(ec.presence_of_element_located((by.By.XPATH, xpath)))
+#
+# def find_ele(wd: webdriver, xpath: str) -> webele.WebElement:
+#     wait = webwait.WebDriverWait(wd, 50)
+#     return wait.until(ec.presence_of_element_located((by.By.XPATH, xpath)))
 
 
 class TryshMiddleware(EFBMiddleware):
@@ -205,61 +206,61 @@ class TryshMiddleware(EFBMiddleware):
         r2.deliver_to = coordinator.master
         coordinator.send_message(r2)
 
-    def get_coinimg(self, coin: str, seleurl: str = 'http://127.0.0.1:4444/wd/hub') -> Image.Image:
-        wd = webdriver.Remote(command_executor=seleurl,
-                              desired_capabilities={'platform': 'ANY', 'browserName': 'chrome',
-                                                    'javascriptEnabled': True}, )
-        wd.set_window_size(1440 - 400, 900)
-        # wd.get(f'https://www.hubi.pub/#/exchange/{coin.lower()}_usdt')
-        wd.get(f'https://www.hubi.pub/zh/exchange/{coin.upper()}_USDT')
-        ifr1 = find_ele(wd, "//iframe")
-        # time.sleep(1)
-        # ifr1 = find_ele(wd, "//iframe")
-        # print(ifr1.location, ifr1.size)
-        locat1 = ifr1.location
-        size1 = ifr1.size
-        wd.switch_to.frame(wd.find_element_by_xpath('//iframe'))
-        # wd.switch_to.frame('tradingview_f3f48')
-        find_ele(wd, "//*[@class='chart-markup-table pane']/div/canvas[1]")
-
-        logoele = find_ele(wd, "//*[@class='onchart-tv-logo wrapper expanded on-pane']")
-        wd.execute_script("""
-        var element = arguments[0];
-        element.parentNode.removeChild(element);
-        """, logoele)
-
-        time.sleep(0.1)
-        ele = find_ele(wd, "//*[@class='chart-container active']")
-        # time.sleep(1)
-        # ele = find_ele(wd, "//*[@class='chart-container active']")
-        # wd.save_screenshot('aaa.png')
-        png = ele.screenshot_as_png
-        im = Image.open(io.BytesIO(png))
-        location = ele.location
-        size = ele.size
-        # #
-        # # rele = ele
-        # # while True:
-        # #     print('parent', rele.location)
-        # #     tele = rele.find_element_by_xpath('..')
-        # #     if tele and getattr(tele, 'location', None):
-        # #         rele = tele
-        # #     else:
-        # #         break
-        #
-        # print(location, size)
-        left = 0  # 203
-        top = 0 + 5  # 27
-        right = size['width'] - 5
-        bottom = size['height'] - 3  # + size1['height']
-        # print(left, top, right, bottom)
-        im2: Image.Image = im.crop((left, top, right, bottom))  # defines crop points
-        # im2.save('aaa.png')  # saves new cropped image
-        # im.save('bbb.png')  # saves new cropped image
-        wd.close()
-        wd.quit()
-        return im2  # im2
-        pass
+    # def get_coinimg(self, coin: str, seleurl: str = 'http://127.0.0.1:4444/wd/hub') -> Image.Image:
+    #     wd = webdriver.Remote(command_executor=seleurl,
+    #                           desired_capabilities={'platform': 'ANY', 'browserName': 'chrome',
+    #                                                 'javascriptEnabled': True}, )
+    #     wd.set_window_size(1440 - 400, 900)
+    #     # wd.get(f'https://www.hubi.pub/#/exchange/{coin.lower()}_usdt')
+    #     wd.get(f'https://www.hubi.pub/zh/exchange/{coin.upper()}_USDT')
+    #     ifr1 = find_ele(wd, "//iframe")
+    #     # time.sleep(1)
+    #     # ifr1 = find_ele(wd, "//iframe")
+    #     # print(ifr1.location, ifr1.size)
+    #     locat1 = ifr1.location
+    #     size1 = ifr1.size
+    #     wd.switch_to.frame(wd.find_element_by_xpath('//iframe'))
+    #     # wd.switch_to.frame('tradingview_f3f48')
+    #     find_ele(wd, "//*[@class='chart-markup-table pane']/div/canvas[1]")
+    #
+    #     logoele = find_ele(wd, "//*[@class='onchart-tv-logo wrapper expanded on-pane']")
+    #     wd.execute_script("""
+    #     var element = arguments[0];
+    #     element.parentNode.removeChild(element);
+    #     """, logoele)
+    #
+    #     time.sleep(0.1)
+    #     ele = find_ele(wd, "//*[@class='chart-container active']")
+    #     # time.sleep(1)
+    #     # ele = find_ele(wd, "//*[@class='chart-container active']")
+    #     # wd.save_screenshot('aaa.png')
+    #     png = ele.screenshot_as_png
+    #     im = Image.open(io.BytesIO(png))
+    #     location = ele.location
+    #     size = ele.size
+    #     # #
+    #     # # rele = ele
+    #     # # while True:
+    #     # #     print('parent', rele.location)
+    #     # #     tele = rele.find_element_by_xpath('..')
+    #     # #     if tele and getattr(tele, 'location', None):
+    #     # #         rele = tele
+    #     # #     else:
+    #     # #         break
+    #     #
+    #     # print(location, size)
+    #     left = 0  # 203
+    #     top = 0 + 5  # 27
+    #     right = size['width'] - 5
+    #     bottom = size['height'] - 3  # + size1['height']
+    #     # print(left, top, right, bottom)
+    #     im2: Image.Image = im.crop((left, top, right, bottom))  # defines crop points
+    #     # im2.save('aaa.png')  # saves new cropped image
+    #     # im.save('bbb.png')  # saves new cropped image
+    #     wd.close()
+    #     wd.quit()
+    #     return im2  # im2
+    #     pass
 
     def get_coin(self, coin: str):
         url = c_host + '/api/ticker/public/convert/raw'
@@ -356,31 +357,31 @@ class TryshMiddleware(EFBMiddleware):
             self.t1.start()
 
         self.t1q.put_nowait((coin, message))
-        return
-        rq = self.get_coin(coin)
-        if rq and len(rq) == 2:
-            self.reply_message(message, f"{coin}: {rq[0]}¥  {rq[1]}$")
-        rt = None
-        try:
-            rt = self.get_coinimg(coin)
-        except BaseException as e:
-            self.lg(f'get_coinimg ee:{e}')
-        if rt:
-            im3 = rt.convert('RGB')
-            # img_file = io.BytesIO()
-            # im3.save(img_file, 'JPEG')
-            # Image.open(img_file)
-
-            # f = tempfile.NamedTemporaryFile(suffix='.jpg')
-            # img_data = io.BytesIO()
-            # im3.save(img_data, format='jpeg')
-            # f.write(img_data.getvalue())
-            # f.file.seek(0)
-            # with tempfile.NamedTemporaryFile('w+b', suffix=".jpg") as f:
-            # im3.save(f, 'jpeg')
-            # fname = f.name
-            # img_file = open(fname, )
-            self.reply_message_img(message, im3)
+        # return
+        # rq = self.get_coin(coin)
+        # if rq and len(rq) == 2:
+        #     self.reply_message(message, f"{coin}: {rq[0]}¥  {rq[1]}$")
+        # rt = None
+        # try:
+        #     rt = self.get_coinimg(coin)
+        # except BaseException as e:
+        #     self.lg(f'get_coinimg ee:{e}')
+        # if rt:
+        #     im3 = rt.convert('RGB')
+        #     # img_file = io.BytesIO()
+        #     # im3.save(img_file, 'JPEG')
+        #     # Image.open(img_file)
+        #
+        #     # f = tempfile.NamedTemporaryFile(suffix='.jpg')
+        #     # img_data = io.BytesIO()
+        #     # im3.save(img_data, format='jpeg')
+        #     # f.write(img_data.getvalue())
+        #     # f.file.seek(0)
+        #     # with tempfile.NamedTemporaryFile('w+b', suffix=".jpg") as f:
+        #     # im3.save(f, 'jpeg')
+        #     # fname = f.name
+        #     # img_file = open(fname, )
+        #     self.reply_message_img(message, im3)
 
     def handle_tg_img_preview(self, message: EFBMsg):
         if not message or not message.file or not message.filename:
@@ -453,7 +454,7 @@ class TryshMiddleware(EFBMiddleware):
 #     t.get_coin('hub')
 
 
-async def close2(page, b):
+async def close2(b):
     lg.info('start close2')
     # rr = await page.close()
     # lg.info(f'start close2 {rr}')
@@ -481,50 +482,54 @@ async def aget_coinimg(coin: str) -> Image.Image:
         'handleSIGINT': False,
     })
     lg.info(f'browser:{browser}')
-    page = await browser.newPage()
-    rr = await page.evaluate("""
-            () =>{
-                Object.defineProperties(navigator,{
-                    webdriver:{
-                    get: () => false
-                    }
-                })
-            }
-        """)
-
-    await page.setViewport({'width': 1440 - 400, 'height': 900})
-    lg.info(f'0')
-    await page.goto(f'https://www.hubi.pub/zh/exchange/{coin.upper()}_USDT')
-    lg.info(f'a')
-    fra = await page.xpath('//iframe')
-    lg.info(f'b:{fra}')
-    fr = await fra[0].contentFrame()
-    lg.info(f'c{fr}')
-    await fr.waitForSelector('td.chart-markup-table.pane > div > canvas:nth-child(1)')
-    # await page.waitForSelector('td.chart-markup-table.pane > div > canvas:nth-child(1)')
-    lg.info(f'd')
-    logoele = await fr.querySelector('div.onchart-tv-logo')
-    lg.info(f'e{logoele}')
-    await fr.evaluate('(v) => {v.parentNode.removeChild(v);}', logoele)
-    await fr.waitForSelector("tr:nth-child(1) > td.chart-markup-table.pane > div > canvas:nth-child(1)")
-    # rr = await fr.querySelector("tr:nth-child(1) > td.chart-markup-table.pane > div > canvas:nth-child(1)")
-    # lg.info(f'f{rr}')
-    # rr = await (await rr.getProperty('nodeName')).jsonValue()
-    # lg.info(f'g{rr}')
-    rr = await fr.querySelector("div.chart-container.active")
-    lg.info(f'a{rr}')
-    imgdata = await rr.screenshot()  # {'path': 'example.png'})
-    lg.info(f'b{len(imgdata)}')
-    # await asyncio.sleep(3)
-
-    im = Image.open(io.BytesIO(imgdata))
-    lg.info(f'im:{im}')
     size = dict()
-    size['width'] = int(await (await rr.getProperty('clientWidth')).jsonValue())
-    size['height'] = int(await (await rr.getProperty('clientHeight')).jsonValue())
-    lg.info(f'size:{size}')
+    im: Image.Image = None
+    try:
+        page = await browser.newPage()
+        rr = await page.evaluate("""
+                () =>{
+                    Object.defineProperties(navigator,{
+                        webdriver:{
+                        get: () => false
+                        }
+                    })
+                }
+            """)
 
-    asyncio.get_running_loop().create_task(close2(page, browser))
+        await page.setViewport({'width': 1440 - 400, 'height': 900})
+        lg.info(f'0')
+        await page.goto(f'https://www.hubi.pub/zh/exchange/{coin.upper()}_USDT')
+        lg.info(f'a')
+        fra = await page.xpath('//iframe')
+        lg.info(f'b:{fra}')
+        fr = await fra[0].contentFrame()
+        lg.info(f'c{fr}')
+        await fr.waitForSelector('td.chart-markup-table.pane > div > canvas:nth-child(1)')
+        # await page.waitForSelector('td.chart-markup-table.pane > div > canvas:nth-child(1)')
+        lg.info(f'd')
+        logoele = await fr.querySelector('div.onchart-tv-logo')
+        lg.info(f'e{logoele}')
+        await fr.evaluate('(v) => {v.parentNode.removeChild(v);}', logoele)
+        await fr.waitForSelector("tr:nth-child(1) > td.chart-markup-table.pane > div > canvas:nth-child(1)")
+        # rr = await fr.querySelector("tr:nth-child(1) > td.chart-markup-table.pane > div > canvas:nth-child(1)")
+        # lg.info(f'f{rr}')
+        # rr = await (await rr.getProperty('nodeName')).jsonValue()
+        # lg.info(f'g{rr}')
+        rr = await fr.querySelector("div.chart-container.active")
+        lg.info(f'a{rr}')
+        imgdata = await rr.screenshot()  # {'path': 'example.png'})
+        lg.info(f'b{len(imgdata)}')
+        # await asyncio.sleep(3)
+
+        im = Image.open(io.BytesIO(imgdata))
+        lg.info(f'im:{im}')
+        size['width'] = int(await (await rr.getProperty('clientWidth')).jsonValue())
+        size['height'] = int(await (await rr.getProperty('clientHeight')).jsonValue())
+        lg.info(f'size:{size}')
+    except BaseException as e:
+        lg.info(f'get img page ee:{e, type(e)}')
+
+    asyncio.get_running_loop().create_task(close2(browser))
 
     # location = ele.location
     # size = ele.size
@@ -539,6 +544,10 @@ async def aget_coinimg(coin: str) -> Image.Image:
     # #         break
     #
     # print(location, size)
+
+    if not im:
+        return None
+
     left = 0  # 203
     top = 0 + 5  # 27
     right = size['width'] - 5
