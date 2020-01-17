@@ -107,7 +107,7 @@ class TryshMiddleware(Middleware):
         # if os.path.exists(self.mappings_path):
         #     self.mappings = pickle.load(open(self.mappings_path, 'rb'))
 
-        self.chat = efbchat.SystemChat()  # EFBChat()
+        self.chat = efbchat.SystemChat(middleware=self, module_id=self.middleware_id)  # EFBChat()
         self.chat.channel_name = self.middleware_name
         self.chat.module_name = self.middleware_name
         self.chat.channel_id = self.middleware_id
