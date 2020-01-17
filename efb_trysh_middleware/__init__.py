@@ -66,6 +66,7 @@ class TryshMiddleware(Middleware):
     __version__: str = version
 
     chat: efbchat.SystemChat = None
+    chatMember: efbchat.ChatMember = None
 
     # mappings: Dict[Tuple[str, str], str] = {}
 
@@ -126,6 +127,26 @@ class TryshMiddleware(Middleware):
         self.chat.chat_name = self.middleware_name
         # self.chat.chat_type = ChatType.System
 
+        # self.chatMember = efbchat.ChatMember(
+        #     chat=self.chat,
+        #     middleware=self,
+        #     # channel_name=self.middleware_name,
+        #     # module_name=self.middleware_name,
+        #     # channel_id=self.middleware_id,
+        #     # module_id=self.middleware_id,
+        #     # channel_emoji="🤖",
+        #     uid="__trysh.trysh__",
+        #     # chat_name=self.middleware_name,
+        # )  # EFBChat()
+
+        self.chat.channel_name = self.middleware_name
+        self.chat.module_name = self.middleware_name
+        self.chat.channel_id = self.middleware_id
+        self.chat.module_id = self.middleware_id
+        self.chat.channel_emoji = "🤖"
+        self.chat.uid = "__trysh.trysh__"
+        self.chat.chat_name = self.middleware_name
+
         self.logger = logging.getLogger("trysh.trysh")
         self.logger.log(99, f"trysh init ok v:{version}")
         # self.logger.setLevel(99)
@@ -167,7 +188,11 @@ class TryshMiddleware(Middleware):
         reply.text = text
         # reply.chat = coordinator.slaves[message.chat.channel_id].get_chat(message.chat.chat_uid)
         reply.chat = coordinator.slaves[message.chat.module_id].get_chat(message.chat.uid)
-        reply.author = self.chat
+        reply.author = message.chat.make_system_member(
+            id=self.middleware_id,
+            name=self.middleware_name,
+            middleware=self
+        )
         reply.type = MsgType.Text
         # reply.deliver_to = coordinator.master
         reply.deliver_to = coordinator.slaves[message.chat.module_id]
@@ -183,8 +208,11 @@ class TryshMiddleware(Middleware):
         # reply.text = text
         # reply.chat = coordinator.slaves[message.chat.channel_id].get_chat(message.chat.chat_uid)
         reply.chat = coordinator.slaves[message.chat.module_id].get_chat(message.chat.uid)
-        reply.author = self.chat
-
+        reply.author = message.chat.make_system_member(
+            id=self.middleware_id,
+            name=self.middleware_name,
+            middleware=self
+        )
         reply.type = MsgType.Image
         reply.mime = 'image/png'
         f = tempfile.NamedTemporaryFile(suffix='.png')
@@ -396,7 +424,7 @@ class TryshMiddleware(Middleware):
     def handle_tg_img_preview(self, message: Message):
         if not message or not message.file or not message.filename:
             return
-        if message.author == self.chat:  # trysh-middleware
+        if message.author.uid == self.middleware_id:  # trysh-middleware
             # self.lg('self')
             return
         if message.type != MsgType.Image:
@@ -435,7 +463,11 @@ class TryshMiddleware(Middleware):
             # reply.text = text
             # reply.chat = coordinator.slaves[message.chat.channel_id].get_chat(message.chat.chat_uid)
             reply.chat = coordinator.slaves[message.chat.module_id].get_chat(message.chat.uid)
-            reply.author = self.chat
+            reply.author = message.chat.make_system_member(
+                id=self.middleware_id,
+                name=self.middleware_name,
+                middleware=self
+            )
 
             reply.type = MsgType.Image
             reply.mime = 'image/png'
