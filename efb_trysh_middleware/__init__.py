@@ -189,7 +189,7 @@ class TryshMiddleware(Middleware):
         # reply.chat = coordinator.slaves[message.chat.channel_id].get_chat(message.chat.chat_uid)
         reply.chat = coordinator.slaves[message.chat.module_id].get_chat(message.chat.uid)
         reply.author = message.chat.make_system_member(
-            id=self.middleware_id,
+            uid=self.middleware_id,
             name=self.middleware_name,
             middleware=self
         )
@@ -209,7 +209,7 @@ class TryshMiddleware(Middleware):
         # reply.chat = coordinator.slaves[message.chat.channel_id].get_chat(message.chat.chat_uid)
         reply.chat = coordinator.slaves[message.chat.module_id].get_chat(message.chat.uid)
         reply.author = message.chat.make_system_member(
-            id=self.middleware_id,
+            uid=self.middleware_id,
             name=self.middleware_name,
             middleware=self
         )
@@ -464,7 +464,7 @@ class TryshMiddleware(Middleware):
             # reply.chat = coordinator.slaves[message.chat.channel_id].get_chat(message.chat.chat_uid)
             reply.chat = coordinator.slaves[message.chat.module_id].get_chat(message.chat.uid)
             reply.author = message.chat.make_system_member(
-                id=self.middleware_id,
+                uid=self.middleware_id,
                 name=self.middleware_name,
                 middleware=self
             )
