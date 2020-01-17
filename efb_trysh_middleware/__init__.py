@@ -107,13 +107,22 @@ class TryshMiddleware(Middleware):
         # if os.path.exists(self.mappings_path):
         #     self.mappings = pickle.load(open(self.mappings_path, 'rb'))
 
-        self.chat = efbchat.SystemChat(middleware=self, module_id=self.middleware_id)  # EFBChat()
+        self.chat = efbchat.SystemChat(
+            middleware=self,
+            # channel_name=self.middleware_name,
+            module_name=self.middleware_name,
+            # channel_id=self.middleware_id,
+            module_id=self.middleware_id,
+            channel_emoji="🤖",
+            uid="__trysh.trysh__",
+            # chat_name=self.middleware_name,
+        )  # EFBChat()
         self.chat.channel_name = self.middleware_name
         self.chat.module_name = self.middleware_name
         self.chat.channel_id = self.middleware_id
         self.chat.module_id = self.middleware_id
         self.chat.channel_emoji = "🤖"
-        self.chat.chat_uid = "__trysh.trysh__"
+        self.chat.uid = "__trysh.trysh__"
         self.chat.chat_name = self.middleware_name
         # self.chat.chat_type = ChatType.System
 
