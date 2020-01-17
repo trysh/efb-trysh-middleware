@@ -12,6 +12,7 @@ import uuid
 from gettext import translation
 from typing import Optional
 
+import ehforwarderbot.chat as efbchat
 import pyppeteer
 import requests
 # from selenium import webdriver
@@ -22,7 +23,7 @@ import requests
 # import asyncio
 # from pyppeteer import launch
 from PIL import Image
-from ehforwarderbot import ChatType, EFBChat, EFBMiddleware, EFBMsg, MsgType, coordinator, utils
+from ehforwarderbot import Message, Middleware, MsgType, coordinator, utils
 from pkg_resources import resource_filename
 
 from .__version__ import __version__ as version
@@ -48,7 +49,7 @@ lg = logging.getLogger('')
 #     return wait.until(ec.presence_of_element_located((by.By.XPATH, xpath)))
 
 
-class TryshMiddleware(EFBMiddleware):
+class TryshMiddleware(Middleware):
     """
     Configuration:
 
@@ -64,7 +65,7 @@ class TryshMiddleware(EFBMiddleware):
     middleware_name: str = "trysh Middleware"
     __version__: str = version
 
-    chat: EFBChat = None
+    chat: efbchat.SystemChat = None
 
     # mappings: Dict[Tuple[str, str], str] = {}
 
@@ -75,7 +76,7 @@ class TryshMiddleware(EFBMiddleware):
     # server: str = "pgp.mit.edu"
     # encrypt_all: bool = False
 
-    Me: EFBChat = None
+    Me: efbchat.Chat = None
     apikey: str = ""
 
     translator = translation("efb_trysh_middleware",
@@ -106,7 +107,7 @@ class TryshMiddleware(EFBMiddleware):
         # if os.path.exists(self.mappings_path):
         #     self.mappings = pickle.load(open(self.mappings_path, 'rb'))
 
-        self.chat = EFBChat()
+        self.chat = efbchat.SystemChat()  # EFBChat()
         self.chat.channel_name = self.middleware_name
         self.chat.module_name = self.middleware_name
         self.chat.channel_id = self.middleware_id
@@ -114,7 +115,7 @@ class TryshMiddleware(EFBMiddleware):
         self.chat.channel_emoji = "🤖"
         self.chat.chat_uid = "__trysh.trysh__"
         self.chat.chat_name = self.middleware_name
-        self.chat.chat_type = ChatType.System
+        # self.chat.chat_type = ChatType.System
 
         self.logger = logging.getLogger("trysh.trysh")
         self.logger.log(99, f"trysh init ok v:{version}")
@@ -126,7 +127,7 @@ class TryshMiddleware(EFBMiddleware):
     def lg(self, msg):  # , *args, **kwargs):
         self.logger.log(99, msg)  # , *args, **kwargs)
 
-    def process_message(self, message: EFBMsg) -> Optional[EFBMsg]:
+    def process_message(self, message: Message) -> Optional[Message]:
         # self.lg(f"Received:message:{message}\n"
         #         f"chat:{message.chat, message.chat.chat_type}\n"
         #         f"msgtype:{message.mime, message.type, message.filename, message.file}\n"
@@ -152,11 +153,11 @@ class TryshMiddleware(EFBMiddleware):
 
         return message
 
-    def reply_message(self, message: EFBMsg, text: str):
-        reply = EFBMsg()
+    def reply_message(self, message: Message, text: str):
+        reply = Message()
         reply.text = text
         # reply.chat = coordinator.slaves[message.chat.channel_id].get_chat(message.chat.chat_uid)
-        reply.chat = coordinator.slaves[message.chat.module_id].get_chat(message.chat.chat_uid)
+        reply.chat = coordinator.slaves[message.chat.module_id].get_chat(message.chat.uid)
         reply.author = self.chat
         reply.type = MsgType.Text
         # reply.deliver_to = coordinator.master
@@ -168,11 +169,11 @@ class TryshMiddleware(EFBMiddleware):
         r2.deliver_to = coordinator.master
         coordinator.send_message(r2)
 
-    def reply_message_img(self, message: EFBMsg, im3: Image.Image):
-        reply = EFBMsg()
+    def reply_message_img(self, message: Message, im3: Image.Image):
+        reply = Message()
         # reply.text = text
         # reply.chat = coordinator.slaves[message.chat.channel_id].get_chat(message.chat.chat_uid)
-        reply.chat = coordinator.slaves[message.chat.module_id].get_chat(message.chat.chat_uid)
+        reply.chat = coordinator.slaves[message.chat.module_id].get_chat(message.chat.uid)
         reply.author = self.chat
 
         reply.type = MsgType.Image
@@ -347,7 +348,7 @@ class TryshMiddleware(EFBMiddleware):
             self.lg(f"api e:{e}")
             return ()
 
-    def coin_re(self, coin: str, message: EFBMsg):
+    def coin_re(self, coin: str, message: Message):
         coins = ('HUB', 'BTC', 'ETH', 'EOS', 'LTC', 'ETC', 'BCH')
         if coin not in coins:
             return
@@ -383,7 +384,7 @@ class TryshMiddleware(EFBMiddleware):
         #     # img_file = open(fname, )
         #     self.reply_message_img(message, im3)
 
-    def handle_tg_img_preview(self, message: EFBMsg):
+    def handle_tg_img_preview(self, message: Message):
         if not message or not message.file or not message.filename:
             return
         if message.author == self.chat:  # trysh-middleware
@@ -421,10 +422,10 @@ class TryshMiddleware(EFBMiddleware):
             im.paste(im2, (0, 0, im2.width, im2.height))
 
             im3 = im.convert('RGB')  # im.copy()  #
-            reply = EFBMsg()
+            reply = Message()
             # reply.text = text
             # reply.chat = coordinator.slaves[message.chat.channel_id].get_chat(message.chat.chat_uid)
-            reply.chat = coordinator.slaves[message.chat.module_id].get_chat(message.chat.chat_uid)
+            reply.chat = coordinator.slaves[message.chat.module_id].get_chat(message.chat.uid)
             reply.author = self.chat
 
             reply.type = MsgType.Image
@@ -565,7 +566,7 @@ async def tf1a(q: queue.Queue, tm: TryshMiddleware):
         try:
             tk = q.get_nowait()
             coin: str = tk[0]
-            message: EFBMsg = tk[1]
+            message: Message = tk[1]
             rq = tm.get_coin(coin)
             if rq and len(rq) == 2:
                 tm.reply_message(message, f"{coin}: {rq[0]}¥  {rq[1]}$")
