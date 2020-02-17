@@ -11,17 +11,19 @@ def main():
     t = etm.TryshMiddleware()
     # print(t.get_coin('btc'))
     #
-    rt = None
-    try:
-        rt = t.get_coinimg('btc', seleurl='http://127.0.0.1:4444/wd/hub')
-    except BaseException as e:
-        t.lg(f'get_coinimg ee:{e}')
-    if rt:
-        im3 = rt.convert('RGB')
-        with open('temp_.png', 'wb') as f:
-            im3.save(f, format='png')
-
+    print(t.get_coin('HUB'))
     return
+    # rt = None
+    # try:
+    #     rt = t.get_coinimg('btc', seleurl='http://127.0.0.1:4444/wd/hub')
+    # except BaseException as e:
+    #     t.lg(f'get_coinimg ee:{e}')
+    # if rt:
+    #     im3 = rt.convert('RGB')
+    #     with open('temp_.png', 'wb') as f:
+    #         im3.save(f, format='png')
+    #
+    # return
 
     url = c_host + '/api/ticker/public/convert/raw'
     parameters = {

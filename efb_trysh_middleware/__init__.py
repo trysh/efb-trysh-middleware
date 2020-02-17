@@ -364,11 +364,13 @@ class TryshMiddleware(Middleware):
 
         cv = 0.0
         try:
-            cv = data.get('trades')[0].get('price')
+            # cv = data.get('trades')[0].get('price')
+            cv = data[0].get('price')
+
         except Exception as e:
             print('except:', e)
-        v1 = cv * rateusdt2btc * ratebtc2cny
-        v2 = cv
+        v1 = float(cv) * rateusdt2btc * ratebtc2cny
+        v2 = float(cv)
         # print(cv, cv * rateusdt2btc * ratebtc2usd)
         v1 = math.floor(v1 * 1000) / 1000
         v2 = math.floor(v2 * 10000) / 10000
@@ -617,31 +619,32 @@ async def tf1a(q: queue.Queue, tm: TryshMiddleware):
         except BaseException as e:
             tm.lg(f'get_coin ee:{e}')
             continue
-        # coinimg = await aget_coinimg(coin)
-        rt = None
-        try:
-            rt = await aget_coinimg(coin)
-        except BaseException as e:
-            tm.lg(f'get_coinimg ee:{e}')
-        if rt:
-            try:
-                im3 = rt.convert('RGB')
-                # img_file = io.BytesIO()
-                # im3.save(img_file, 'JPEG')
-                # Image.open(img_file)
 
-                # f = tempfile.NamedTemporaryFile(suffix='.jpg')
-                # img_data = io.BytesIO()
-                # im3.save(img_data, format='jpeg')
-                # f.write(img_data.getvalue())
-                # f.file.seek(0)
-                # with tempfile.NamedTemporaryFile('w+b', suffix=".jpg") as f:
-                # im3.save(f, 'jpeg')
-                # fname = f.name
-                # img_file = open(fname, )
-                tm.reply_message_img(message, im3)
-            finally:
-                pass
+        # coinimg = await aget_coinimg(coin)
+        # rt = None
+        # try:
+        #     rt = await aget_coinimg(coin)
+        # except BaseException as e:
+        #     tm.lg(f'get_coinimg ee:{e}')
+        # if rt:
+        #     try:
+        #         im3 = rt.convert('RGB')
+        #         # img_file = io.BytesIO()
+        #         # im3.save(img_file, 'JPEG')
+        #         # Image.open(img_file)
+        #
+        #         # f = tempfile.NamedTemporaryFile(suffix='.jpg')
+        #         # img_data = io.BytesIO()
+        #         # im3.save(img_data, format='jpeg')
+        #         # f.write(img_data.getvalue())
+        #         # f.file.seek(0)
+        #         # with tempfile.NamedTemporaryFile('w+b', suffix=".jpg") as f:
+        #         # im3.save(f, 'jpeg')
+        #         # fname = f.name
+        #         # img_file = open(fname, )
+        #         tm.reply_message_img(message, im3)
+        #     finally:
+        #         pass
 
     pass
 
