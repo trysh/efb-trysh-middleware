@@ -171,7 +171,8 @@ class TryshMiddleware(Middleware):
         if not message or message.type != MsgType.Text:
             return message
 
-        if not message or not message.chat or 'HUB俱乐部' in message.chat.__str__():
+        if not message or not message.chat \
+                or 'HUB' in message.chat.__str__().upper():
             return message
         # chat:<EFBChat: HUB俱乐部 (7e68e4ef) @ WeChat Slave>
 
