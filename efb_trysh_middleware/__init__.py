@@ -301,7 +301,7 @@ class TryshMiddleware(Middleware):
     #     return im2  # im2
     #     pass
 
-    def get_coin(self, coin: str):
+    def get_coin0(self, coin: str):
         url = c_host + '/api/ticker/public/convert/raw'
         parameters = {
         }
@@ -372,6 +372,52 @@ class TryshMiddleware(Middleware):
             print('except:', e)
         v1 = float(cv) * rateusdt2btc * ratebtc2cny
         v2 = float(cv)
+        # print(cv, cv * rateusdt2btc * ratebtc2usd)
+        v1 = math.floor(v1 * 1000) / 1000
+        v2 = math.floor(v2 * 10000) / 10000
+        try:
+            v1 = "%.3f" % v1 if v1 < 50 else str(int(v1))
+            v2 = "%.4f" % v2 if v2 < 10 else str(int(v2))
+            # return f"btc:{data.data.BTC.quote.CNY.price} yo:{data.data.YO.quote.CNY.price}"
+            # btcp = int(data.get('data', {}).get('BTC', {}).get('quote', {}).get('CNY', {}).get('price', 0))
+            # ethp = int(data.get('data', {}).get('ETH', {}).get('quote', {}).get('CNY', {}).get('price', 0))
+            # eosp = int(data.get('data', {}).get('EOS', {}).get('quote', {}).get('CNY', {}).get('price', 0))
+            # return f"BTC:{btcp}￥ \nETH:{ethp}￥ \nEOS:{eosp}￥"
+            return v1, v2
+        except (ConnectionError, requests.Timeout, requests.TooManyRedirects, BaseException) as e:
+            self.lg(f"api e:{e}")
+            return ()
+
+    def get_coin(self, coin: str):
+        url = c_host + '/api/connect/public/rate/quotes'
+        parameters = {
+        }
+        headers = {
+        }
+        session = requests.Session()
+        session.headers.update(headers)
+        data = None
+        # qus = None
+        # raw = None
+        idx = None
+        live = None
+        locals()
+        try:
+            response = session.get(url, params=parameters)
+            data = json.loads(response.text)
+            idx = data.get('index', {})
+            live = data.get('live', {})
+        except (ConnectionError, requests.Timeout, requests.TooManyRedirects, BaseException) as e:
+            print('http err', e)
+            return
+        session.close()
+
+        coinusd = idx.get(coin.upper() + "USD", 0)
+        coinusdt = idx.get(coin.upper() + "USDT", 0)
+        usdcny = live.get("USDCNY", 0)
+
+        v1 = usdcny * coinusd
+        v2 = coinusdt
         # print(cv, cv * rateusdt2btc * ratebtc2usd)
         v1 = math.floor(v1 * 1000) / 1000
         v2 = math.floor(v2 * 10000) / 10000
