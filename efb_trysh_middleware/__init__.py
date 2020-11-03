@@ -416,7 +416,31 @@ class TryshMiddleware(Middleware):
         coinusdt = idx.get(coin.upper() + "USDT", 0)
         usdcny = live.get("USDCNY", 0)
 
-        v1 = usdcny * coinusd
+        # https://www.huobi.com/-/x/general/exchange_rate/list
+        url = 'https://www.huobi.fm/-/x/general/exchange_rate/list'
+        parameters = {
+        }
+        headers = {
+        }
+        session = requests.Session()
+        session.headers.update(headers)
+        huobidata = None
+        locals()
+        try:
+            response = session.get(url, params=parameters)
+            data = json.loads(response.text)
+            huobidata = data.get('data', [])
+        except (ConnectionError, requests.Timeout, requests.TooManyRedirects, BaseException) as e:
+            print('http err2', e)
+            return
+        session.close()
+        usdt2cny = 0
+        for v in huobidata:
+            if v.get("name", "") == "usdt_cny":
+                usdt2cny = v.get("rate", 0)
+                break
+
+        v1 = usdt2cny * coinusdt
         v2 = coinusdt
         # print(cv, cv * rateusdt2btc * ratebtc2usd)
         v1 = math.floor(v1 * 1000) / 1000
