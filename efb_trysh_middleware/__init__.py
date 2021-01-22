@@ -389,8 +389,11 @@ class TryshMiddleware(Middleware):
             return ()
 
     def get_coin(self, coin: str):
-        url = c_host + '/api/connect/public/rate/quotes'
+        url = 'https://www.binance.com/api/v3/ticker/price'
+        # ?symbol=ETHUSDT
+        # c_host + '/api/connect/public/rate/quotes'
         parameters = {
+            "symbol": coin.upper() + "USDT"
         }
         headers = {
         }
@@ -405,16 +408,17 @@ class TryshMiddleware(Middleware):
         try:
             response = session.get(url, params=parameters)
             data = json.loads(response.text)
-            idx = data.get('index', {})
-            live = data.get('live', {})
+            # idx = data.get('index', {})
+            # live = data.get('live', {})
         except (ConnectionError, requests.Timeout, requests.TooManyRedirects, BaseException) as e:
             print('http err', e)
             return
         session.close()
 
-        coinusd = idx.get(coin.upper() + "USD", 0)
-        coinusdt = idx.get(coin.upper() + "USDT", 0)
-        usdcny = live.get("USDCNY", 0)
+        # coinusd = idx.get(coin.upper() + "USD", 0)
+        # coinusdt = idx.get(coin.upper() + "USDT", 0)
+        coinusdt = float(data.get("price", "0"))
+        # usdcny = live.get("USDCNY", 0)
 
         # https://www.huobi.com/-/x/general/exchange_rate/list
         url = 'https://www.huobi.fm/-/x/general/exchange_rate/list'
