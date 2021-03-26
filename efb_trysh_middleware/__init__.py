@@ -421,7 +421,7 @@ class TryshMiddleware(Middleware):
         # usdcny = live.get("USDCNY", 0)
 
         # https://www.huobi.com/-/x/general/exchange_rate/list
-        url = 'https://www.huobi.fm/-/x/general/exchange_rate/list'
+        url = 'https://www.huobi.com/-/x/general/exchange_rate/list'
         parameters = {
         }
         headers = {
