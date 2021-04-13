@@ -6,6 +6,7 @@ import logging
 import math
 import os
 import queue
+import re
 import tempfile
 import threading
 import uuid
@@ -463,8 +464,12 @@ class TryshMiddleware(Middleware):
             return ()
 
     def coin_re(self, coin: str, message: Message):
-        coins = ('HUB', 'BTC', 'ETH', 'EOS', 'LTC', 'ETC', 'BCH')
-        if coin not in coins:
+        # coins = ('HUB', 'BTC', 'ETH', 'EOS', 'LTC', 'ETC', 'BCH')
+        # if coin not in coins:
+        #     return
+        if not re.match('^[a-zA-Z0-9]{2,4}$', coin):
+            return
+        if re.match('^[0-9]{2,4}$', coin):
             return
         if not self.t1:
             self.t1q = queue.Queue()
