@@ -691,7 +691,7 @@ async def tf1a(q: queue.Queue, tm: TryshMiddleware):
             coin: str = tk[0]
             message: Message = tk[1]
             rq = tm.get_coin(coin)
-            if rq and len(rq) == 2 and rq[0] > 0 and rq[1] > 0:
+            if rq and len(rq) == 2 and float(rq[0]) > 0 and float(rq[1]) > 0:
                 tm.reply_message(message, f"{coin}: {rq[0]}¥  {rq[1]}$")
         except queue.Empty:
             await asyncio.sleep(0.1)
