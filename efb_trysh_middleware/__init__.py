@@ -187,9 +187,9 @@ class TryshMiddleware(Middleware):
         if not self.t2:
             chatname = message.chat.__str__().upper()
             if "偏锋测试" in chatname:  # "迷の故事"
+                self.t2q = queue.Queue()
                 self.t2 = threading.Thread(target=tf2, args=(self.t2q, self))
                 self.lg(f'故事。thread')
-                self.t2q = queue.Queue()
                 self.t2.start()
                 self.t2q.put_nowait(('3', message))
 
@@ -765,7 +765,7 @@ async def tf2a(q: queue.Queue, tm: TryshMiddleware):
             # rq = tm.get_coin(coin)
             # if rq and len(rq) == 2 and float(rq[0]) > 0 and float(rq[1]) > 0:
             ct = time.localtime()
-            if ct.tm_hour == 12 and ct.tm_min >= 3:
+            if ct.tm_hour == 12 and ct.tm_min >= 10:
                 tm.reply_message(message, f"hello:{ct}")
                 await asyncio.sleep(61)
         except queue.Empty:
