@@ -9,6 +9,7 @@ import queue
 import re
 import tempfile
 import threading
+import time
 import uuid
 from gettext import translation
 from typing import Optional
@@ -155,6 +156,7 @@ class TryshMiddleware(Middleware):
         self.t1: threading.Thread = None
         self.t2: threading.Thread = None
         self.t1q: queue.Queue = None
+        self.t2q: queue.Queue = None
 
     def lg(self, msg):  # , *args, **kwargs):
         self.logger.log(99, msg)  # , *args, **kwargs)
@@ -184,8 +186,12 @@ class TryshMiddleware(Middleware):
 
         if not self.t2:
             chatname = message.chat.__str__().upper()
-            if "迷の故事" in chatname:
-                self.lg(f'故事。')
+            if "偏锋测试" in chatname:  # "迷の故事"
+                self.t2 = threading.Thread(target=tf2, args=(self.t2q, self))
+                self.lg(f'故事。thread')
+                self.t2q = queue.Queue()
+                self.t2.start()
+                self.t2q.put_nowait(('3', message))
 
         self.coin_re(txt, message)
 
@@ -740,3 +746,31 @@ def tf1(q: queue.Queue, tm: TryshMiddleware):
     loop.run_until_complete(tf1a(q, tm))
     # asyncio.run(main())
     pass
+
+
+def tf2(q: queue.Queue, tm: TryshMiddleware):
+    loop = asyncio.new_event_loop()
+    loop.run_until_complete(tf2a(q, tm))
+    # asyncio.run(main())
+    pass
+
+
+async def tf2a(q: queue.Queue, tm: TryshMiddleware):
+    while True:
+        await asyncio.sleep(0.1)
+        try:
+            tk = q.get_nowait()
+            coin: str = tk[0]
+            message: Message = tk[1]
+            # rq = tm.get_coin(coin)
+            # if rq and len(rq) == 2 and float(rq[0]) > 0 and float(rq[1]) > 0:
+            ct = time.localtime()
+            if ct.tm_hour == 12 and ct.tm_min >= 3:
+                tm.reply_message(message, f"hello:{ct}")
+                await asyncio.sleep(61)
+        except queue.Empty:
+            # await asyncio.sleep(0.1)
+            continue
+        except BaseException as e:
+            tm.lg(f'get_coin ee:{e}')
+            continue
