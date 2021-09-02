@@ -153,6 +153,7 @@ class TryshMiddleware(Middleware):
         # self.logger.setLevel(99)
 
         self.t1: threading.Thread = None
+        self.t2: threading.Thread = None
         self.t1q: queue.Queue = None
 
     def lg(self, msg):  # , *args, **kwargs):
@@ -180,6 +181,11 @@ class TryshMiddleware(Middleware):
         txt = message.text[:].strip().upper() or ''
         # if False and txt.startswith('/') and len(txt) >= 2:
         #     pass  # coin_re(txt[1:])
+
+        if not self.t2:
+            chatname = message.chat.__str__().upper()
+            if "迷の故事" in chatname:
+                self.lg(f'故事。')
 
         self.coin_re(txt, message)
 
@@ -694,7 +700,7 @@ async def tf1a(q: queue.Queue, tm: TryshMiddleware):
             if rq and len(rq) == 2 and float(rq[0]) > 0 and float(rq[1]) > 0:
                 tm.reply_message(message, f"{coin}: {rq[0]}¥  {rq[1]}$")
         except queue.Empty:
-            await asyncio.sleep(0.1)
+            # await asyncio.sleep(0.1)
             continue
         except BaseException as e:
             tm.lg(f'get_coin ee:{e}')
