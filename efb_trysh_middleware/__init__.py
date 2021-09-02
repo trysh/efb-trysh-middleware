@@ -184,7 +184,7 @@ class TryshMiddleware(Middleware):
         # if False and txt.startswith('/') and len(txt) >= 2:
         #     pass  # coin_re(txt[1:])
 
-        gushiname = "偏锋测试"  # "迷の故事"
+        gushiname = "迷の故事"  # "偏锋测试"  #
         chatname = message.chat.__str__().upper()
         if not self.t2:
             if gushiname in chatname:
