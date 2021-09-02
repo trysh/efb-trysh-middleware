@@ -156,7 +156,7 @@ class TryshMiddleware(Middleware):
         self.t1: threading.Thread = None
         self.t2: threading.Thread = None
         self.t1q: queue.Queue = None
-        self.t2q: queue.Queue = None
+        self.t2q: queue.Queue = queue.Queue()
 
     def lg(self, msg):  # , *args, **kwargs):
         self.logger.log(99, msg)  # , *args, **kwargs)
@@ -184,14 +184,18 @@ class TryshMiddleware(Middleware):
         # if False and txt.startswith('/') and len(txt) >= 2:
         #     pass  # coin_re(txt[1:])
 
+        gushiname = "偏锋测试"  # "迷の故事"
+        chatname = message.chat.__str__().upper()
         if not self.t2:
-            chatname = message.chat.__str__().upper()
-            if "偏锋测试" in chatname:  # "迷の故事"
-                self.t2q = queue.Queue()
+            if gushiname in chatname:
                 self.t2 = threading.Thread(target=tf2, args=(self.t2q, self))
-                self.lg(f'故事。thread')
+                self.lg(f'故事!thread')
                 self.t2.start()
                 self.t2q.put_nowait(('3', message))
+        else:
+            if gushiname in chatname:
+                self.t2q.put_nowait(('4', message))
+                self.lg(f'故事!thread update')
 
         self.coin_re(txt, message)
 
@@ -756,21 +760,27 @@ def tf2(q: queue.Queue, tm: TryshMiddleware):
 
 
 async def tf2a(q: queue.Queue, tm: TryshMiddleware):
+    cachemsg: Message = None
     while True:
         await asyncio.sleep(0.1)
         try:
             tk = q.get_nowait()
-            coin: str = tk[0]
-            message: Message = tk[1]
-            # rq = tm.get_coin(coin)
-            # if rq and len(rq) == 2 and float(rq[0]) > 0 and float(rq[1]) > 0:
-            ct = time.localtime()
-            if ct.tm_hour == 12 and ct.tm_min >= 10:
-                tm.reply_message(message, f"hello:{ct}")
-                await asyncio.sleep(61)
+            # coin: str = tk[0]
+            if tk[1]:
+                tm.lg(f'!udp: {tk[1]}')
+                cachemsg = tk[1]
         except queue.Empty:
             # await asyncio.sleep(0.1)
-            continue
+            pass
         except BaseException as e:
-            tm.lg(f'get_coin ee:{e}')
+            # tm.lg(f'get_coin ee:{e}')
+            # continue
+            pass
+        if not cachemsg:
             continue
+            # rq = tm.get_coin(coin)
+            # if rq and len(rq) == 2 and float(rq[0]) > 0 and float(rq[1]) > 0:
+        ct = time.localtime()
+        if ct.tm_hour == 12 and ct.tm_min >= 55:
+            tm.reply_message(cachemsg, f"hello:{ct}")
+            await asyncio.sleep(61)
