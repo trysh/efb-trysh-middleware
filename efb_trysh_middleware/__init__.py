@@ -773,6 +773,7 @@ async def tf2a(q: queue.Queue, tm: TryshMiddleware):
             # await asyncio.sleep(0.1)
             pass
         except BaseException as e:
+            _ = e
             # tm.lg(f'get_coin ee:{e}')
             # continue
             pass
@@ -781,6 +782,6 @@ async def tf2a(q: queue.Queue, tm: TryshMiddleware):
             # rq = tm.get_coin(coin)
             # if rq and len(rq) == 2 and float(rq[0]) > 0 and float(rq[1]) > 0:
         ct = time.localtime()
-        if ct.tm_hour == 12 and ct.tm_min >= 55:
-            tm.reply_message(cachemsg, f"hello:{ct}")
+        if ct.tm_hour == 7 and ct.tm_min == 0:
+            tm.reply_message(cachemsg, f"3点几啦。饮茶先啦。")
             await asyncio.sleep(61)
