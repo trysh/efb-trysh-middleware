@@ -441,28 +441,50 @@ class TryshMiddleware(Middleware):
             coinusdt = float(data.get("price", "0"))
             # usdcny = live.get("USDCNY", 0)
 
-        # https://www.huobi.com/-/x/general/exchange_rate/list
-        url = 'https://www.huobi.com/-/x/general/exchange_rate/list'
-        parameters = {
-        }
-        headers = {
-        }
+        # # https://www.huobi.com/-/x/general/exchange_rate/list
+        # url = 'https://www.huobi.com/-/x/general/exchange_rate/list'
+        # parameters = {
+        # }
+        # headers = {
+        # }
+        # session = requests.Session()
+        # session.headers.update(headers)
+        # huobidata = None
+        # locals()
+        # try:
+        #     response = session.get(url, params=parameters)
+        #     data = json.loads(response.text)
+        #     huobidata = data.get('data', [])
+        # except (ConnectionError, requests.Timeout, requests.TooManyRedirects, BaseException) as e:
+        #     print('http err2', e)
+        #     return
+        # session.close()
+        # usdt2cny = 0
+        # for v in huobidata:
+        #     if v.get("name", "") == "usdt_cny":
+        #         usdt2cny = v.get("rate", 0)
+        #         break
+
+        url = 'https://c2c.binance.com/bapi/c2c/v2/public/c2c/adv/quoted-price'
+        parameters = {}
+        headers = {}
+        pstdat = {"assets": ["USDT"], "fiatCurrency": "CNY", "fromUserRole": "USER", "tradeType": "SELL"}
         session = requests.Session()
         session.headers.update(headers)
-        huobidata = None
+        dats = None
         locals()
         try:
-            response = session.get(url, params=parameters)
+            response = session.post(url, json=pstdat)
             data = json.loads(response.text)
-            huobidata = data.get('data', [])
+            dats = data.get('data', [])
         except (ConnectionError, requests.Timeout, requests.TooManyRedirects, BaseException) as e:
             print('http err2', e)
             return
         session.close()
         usdt2cny = 0
-        for v in huobidata:
-            if v.get("name", "") == "usdt_cny":
-                usdt2cny = v.get("rate", 0)
+        for v in dats:
+            if v.get("currency", "") == "CNY":
+                usdt2cny = v.get("referencePrice", 0)
                 break
 
         v1 = usdt2cny * coinusdt

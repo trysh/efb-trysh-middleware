@@ -11,7 +11,7 @@ def main():
     t = etm.TryshMiddleware()
     # print(t.get_coin('btc'))
     #
-    print(t.get_coin('HUB'))
+    print(t.get_coin('eth'))
     return
     # rt = None
     # try:
