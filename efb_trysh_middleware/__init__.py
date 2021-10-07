@@ -489,12 +489,18 @@ class TryshMiddleware(Middleware):
 
         v1 = usdt2cny * coinusdt
         v2 = coinusdt
-        # print(cv, cv * rateusdt2btc * ratebtc2usd)
-        v1 = math.floor(v1 * 1000) / 1000
-        v2 = math.floor(v2 * 10000) / 10000
         try:
-            v1 = "%.3f" % v1 if v1 < 50 else str(int(v1))
-            v2 = "%.4f" % v2 if v2 < 10 else str(int(v2))
+            # print(cv, cv * rateusdt2btc * ratebtc2usd)
+            if v2 < 0.002:
+                v1 = math.floor(v1 * 100000) / 100000
+                v2 = math.floor(v2 * 1000000) / 1000000
+                v1 = "%.5f" % v1
+                v2 = "%.6f" % v2
+            else:
+                v1 = math.floor(v1 * 1000) / 1000
+                v2 = math.floor(v2 * 10000) / 10000
+                v1 = "%.3f" % v1 if v1 < 50 else str(int(v1))
+                v2 = "%.4f" % v2 if v2 < 10 else str(int(v2))
             # return f"btc:{data.data.BTC.quote.CNY.price} yo:{data.data.YO.quote.CNY.price}"
             # btcp = int(data.get('data', {}).get('BTC', {}).get('quote', {}).get('CNY', {}).get('price', 0))
             # ethp = int(data.get('data', {}).get('ETH', {}).get('quote', {}).get('CNY', {}).get('price', 0))
