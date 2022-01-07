@@ -15,7 +15,7 @@ from gettext import translation
 from typing import Optional
 
 import ehforwarderbot.chat as efbchat
-import pyppeteer
+# import pyppeteer
 import requests
 # from selenium import webdriver
 # import selenium.webdriver.common.by as by
@@ -171,6 +171,7 @@ class TryshMiddleware(Middleware):
         # 处理"telegram图片长高比>=20.0无法预览"问题
         if message and message.type == MsgType.Image:
             self.handle_tg_img_preview(message)
+            return message
 
         if not message or message.type != MsgType.Text:
             return message
@@ -634,101 +635,101 @@ async def close2(b):
     lg.info(f'start close2 {rr}')
 
 
-async def aget_coinimg(coin: str) -> Image.Image:
-    browser = await pyppeteer.launch({
-        'headless': True,  # 无头模式
-        'args': [
-            '--disable-extensions',
-            '--hide-scrollbars',
-            '--disable-bundled-ppapi-flash',
-            '--mute-audio',
-            '--no-sandbox',
-            '--disable-setuid-sandbox',
-            '--disable-gpu',
-            '--disable-infobars',
-        ],
-        # 'dumpio': True,
-        # 'loop': g_loop,
-        'handleSIGHUP': False,
-        'handleSIGTERM': False,
-        'handleSIGINT': False,
-    })
-    lg.info(f'browser:{browser}')
-    size = dict()
-    im: Image.Image = None
-    try:
-        page = await browser.newPage()
-        rr = await page.evaluate("""
-                () =>{
-                    Object.defineProperties(navigator,{
-                        webdriver:{
-                        get: () => false
-                        }
-                    })
-                }
-            """)
-
-        await page.setViewport({'width': 1440 - 400, 'height': 900})
-        lg.info(f'0')
-        await page.goto(f'https://www.hubi.pub/zh/exchange/{coin.upper()}_USDT')
-        lg.info(f'a')
-        fra = await page.xpath('//iframe')
-        lg.info(f'b:{fra}')
-        fr = await fra[0].contentFrame()
-        lg.info(f'c{fr}')
-        await fr.waitForSelector('td.chart-markup-table.pane > div > canvas:nth-child(1)')
-        # await page.waitForSelector('td.chart-markup-table.pane > div > canvas:nth-child(1)')
-        lg.info(f'd')
-        logoele = await fr.querySelector('div.onchart-tv-logo')
-        lg.info(f'e{logoele}')
-        await fr.evaluate('(v) => {v.parentNode.removeChild(v);}', logoele)
-        await fr.waitForSelector("tr:nth-child(1) > td.chart-markup-table.pane > div > canvas:nth-child(1)")
-        # rr = await fr.querySelector("tr:nth-child(1) > td.chart-markup-table.pane > div > canvas:nth-child(1)")
-        # lg.info(f'f{rr}')
-        # rr = await (await rr.getProperty('nodeName')).jsonValue()
-        # lg.info(f'g{rr}')
-        rr = await fr.querySelector("div.chart-container.active")
-        lg.info(f'a{rr}')
-        imgdata = await rr.screenshot()  # {'path': 'example.png'})
-        lg.info(f'b{len(imgdata)}')
-        # await asyncio.sleep(3)
-
-        im = Image.open(io.BytesIO(imgdata))
-        lg.info(f'im:{im}')
-        size['width'] = int(await (await rr.getProperty('clientWidth')).jsonValue())
-        size['height'] = int(await (await rr.getProperty('clientHeight')).jsonValue())
-        lg.info(f'size:{size}')
-    except BaseException as e:
-        lg.info(f'get img page ee:{e, type(e)}')
-
-    asyncio.get_running_loop().create_task(close2(browser))
-
-    # location = ele.location
-    # size = ele.size
-    # #
-    # # rele = ele
-    # # while True:
-    # #     print('parent', rele.location)
-    # #     tele = rele.find_element_by_xpath('..')
-    # #     if tele and getattr(tele, 'location', None):
-    # #         rele = tele
-    # #     else:
-    # #         break
-    #
-    # print(location, size)
-
-    if not im:
-        return None
-
-    left = 0  # 203
-    top = 0 + 5  # 27
-    right = size['width'] - 5
-    bottom = size['height'] - 3  # + size1['height']
-    # print(left, top, right, bottom)
-    im2: Image.Image = im.crop((left, top, right, bottom))  # defines crop points
-    lg.info(f'im2:{im2}')
-    return im2
-    pass
+# async def aget_coinimg(coin: str) -> Image.Image:
+#     browser = await pyppeteer.launch({
+#         'headless': True,  # 无头模式
+#         'args': [
+#             '--disable-extensions',
+#             '--hide-scrollbars',
+#             '--disable-bundled-ppapi-flash',
+#             '--mute-audio',
+#             '--no-sandbox',
+#             '--disable-setuid-sandbox',
+#             '--disable-gpu',
+#             '--disable-infobars',
+#         ],
+#         # 'dumpio': True,
+#         # 'loop': g_loop,
+#         'handleSIGHUP': False,
+#         'handleSIGTERM': False,
+#         'handleSIGINT': False,
+#     })
+#     lg.info(f'browser:{browser}')
+#     size = dict()
+#     im: Image.Image = None
+#     try:
+#         page = await browser.newPage()
+#         rr = await page.evaluate("""
+#                 () =>{
+#                     Object.defineProperties(navigator,{
+#                         webdriver:{
+#                         get: () => false
+#                         }
+#                     })
+#                 }
+#             """)
+#
+#         await page.setViewport({'width': 1440 - 400, 'height': 900})
+#         lg.info(f'0')
+#         await page.goto(f'https://www.hubi.pub/zh/exchange/{coin.upper()}_USDT')
+#         lg.info(f'a')
+#         fra = await page.xpath('//iframe')
+#         lg.info(f'b:{fra}')
+#         fr = await fra[0].contentFrame()
+#         lg.info(f'c{fr}')
+#         await fr.waitForSelector('td.chart-markup-table.pane > div > canvas:nth-child(1)')
+#         # await page.waitForSelector('td.chart-markup-table.pane > div > canvas:nth-child(1)')
+#         lg.info(f'd')
+#         logoele = await fr.querySelector('div.onchart-tv-logo')
+#         lg.info(f'e{logoele}')
+#         await fr.evaluate('(v) => {v.parentNode.removeChild(v);}', logoele)
+#         await fr.waitForSelector("tr:nth-child(1) > td.chart-markup-table.pane > div > canvas:nth-child(1)")
+#         # rr = await fr.querySelector("tr:nth-child(1) > td.chart-markup-table.pane > div > canvas:nth-child(1)")
+#         # lg.info(f'f{rr}')
+#         # rr = await (await rr.getProperty('nodeName')).jsonValue()
+#         # lg.info(f'g{rr}')
+#         rr = await fr.querySelector("div.chart-container.active")
+#         lg.info(f'a{rr}')
+#         imgdata = await rr.screenshot()  # {'path': 'example.png'})
+#         lg.info(f'b{len(imgdata)}')
+#         # await asyncio.sleep(3)
+#
+#         im = Image.open(io.BytesIO(imgdata))
+#         lg.info(f'im:{im}')
+#         size['width'] = int(await (await rr.getProperty('clientWidth')).jsonValue())
+#         size['height'] = int(await (await rr.getProperty('clientHeight')).jsonValue())
+#         lg.info(f'size:{size}')
+#     except BaseException as e:
+#         lg.info(f'get img page ee:{e, type(e)}')
+#
+#     asyncio.get_running_loop().create_task(close2(browser))
+#
+#     # location = ele.location
+#     # size = ele.size
+#     # #
+#     # # rele = ele
+#     # # while True:
+#     # #     print('parent', rele.location)
+#     # #     tele = rele.find_element_by_xpath('..')
+#     # #     if tele and getattr(tele, 'location', None):
+#     # #         rele = tele
+#     # #     else:
+#     # #         break
+#     #
+#     # print(location, size)
+#
+#     if not im:
+#         return None
+#
+#     left = 0  # 203
+#     top = 0 + 5  # 27
+#     right = size['width'] - 5
+#     bottom = size['height'] - 3  # + size1['height']
+#     # print(left, top, right, bottom)
+#     im2: Image.Image = im.crop((left, top, right, bottom))  # defines crop points
+#     lg.info(f'im2:{im2}')
+#     return im2
+#     pass
 
 
 async def tf1a(q: queue.Queue, tm: TryshMiddleware):
@@ -740,7 +741,7 @@ async def tf1a(q: queue.Queue, tm: TryshMiddleware):
             message: Message = tk[1]
             rq = tm.get_coin(coin)
             if rq and len(rq) == 2 and float(rq[0]) > 0 and float(rq[1]) > 0:
-                tm.reply_message(message, f"{coin}: {rq[0]}¥  {rq[1]}$")
+                tm.reply_message(message, f"{rq[0]}¥  {rq[1]}$")  # {coin}:
         except queue.Empty:
             # await asyncio.sleep(0.1)
             continue
@@ -815,5 +816,5 @@ async def tf2a(q: queue.Queue, tm: TryshMiddleware):
             # if rq and len(rq) == 2 and float(rq[0]) > 0 and float(rq[1]) > 0:
         ct = time.localtime()
         if 0 <= ct.tm_wday <= 4 and ct.tm_hour == 7 and ct.tm_min == 0:
-            tm.reply_message(cachemsg, f"3点几啦。饮茶先啦。")
+            tm.reply_message(cachemsg, f"3点啦")
             await asyncio.sleep(61)
