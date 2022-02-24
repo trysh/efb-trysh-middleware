@@ -466,16 +466,38 @@ class TryshMiddleware(Middleware):
         #         usdt2cny = v.get("rate", 0)
         #         break
 
-        url = 'https://c2c.binance.com/bapi/c2c/v2/public/c2c/adv/quoted-price'
+        # url = 'https://c2c.binance.com/bapi/c2c/v2/public/c2c/adv/quoted-price'
+        # parameters = {}
+        # headers = {}
+        # pstdat = {"assets": ["USDT"], "fiatCurrency": "CNY", "fromUserRole": "USER", "tradeType": "SELL"}
+        # session = requests.Session()
+        # session.headers.update(headers)
+        # dats = None
+        # locals()
+        # try:
+        #     response = session.post(url, json=pstdat)
+        #     data = json.loads(response.text)
+        #     dats = data.get('data', [])
+        # except (ConnectionError, requests.Timeout, requests.TooManyRedirects, BaseException) as e:
+        #     print('http err2', e)
+        #     return
+        # session.close()
+        # usdt2cny = 0
+        # for v in dats:
+        #     if v.get("currency", "") == "CNY":
+        #         usdt2cny = v.get("referencePrice", 0)
+        #         break
+
+        url = 'https://c2c.binance.com/bapi/asset/v1/public/asset-service/product/currency'
         parameters = {}
         headers = {}
-        pstdat = {"assets": ["USDT"], "fiatCurrency": "CNY", "fromUserRole": "USER", "tradeType": "SELL"}
+        # pstdat = {"assets": ["USDT"], "fiatCurrency": "CNY", "fromUserRole": "USER", "tradeType": "SELL"}
         session = requests.Session()
         session.headers.update(headers)
         dats = None
         locals()
         try:
-            response = session.post(url, json=pstdat)
+            response = session.get(url)
             data = json.loads(response.text)
             dats = data.get('data', [])
         except (ConnectionError, requests.Timeout, requests.TooManyRedirects, BaseException) as e:
@@ -484,8 +506,8 @@ class TryshMiddleware(Middleware):
         session.close()
         usdt2cny = 0
         for v in dats:
-            if v.get("currency", "") == "CNY":
-                usdt2cny = v.get("referencePrice", 0)
+            if v.get("pair", "") == "CNY_USD":
+                usdt2cny = v.get("rate", 0)
                 break
 
         v1 = usdt2cny * coinusdt
