@@ -538,6 +538,17 @@ class TryshMiddleware(Middleware):
         # coins = ('HUB', 'BTC', 'ETH', 'EOS', 'LTC', 'ETC', 'BCH')
         # if coin not in coins:
         #     return
+        cm = {
+            "姨太": "eth",
+            "以太": "eth",
+            "以太晃": "eth",
+            "大饼": "btc",
+            "比特": "btc",
+            "孙总的内裤": "eth",
+        }
+        mv = cm.get(coin, "")
+        if mv != "":
+            coin = mv
         if not re.match('^[a-zA-Z0-9]{2,4}$', coin):
             return
         if re.match('^[0-9]{2,4}$', coin):
