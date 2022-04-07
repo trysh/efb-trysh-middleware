@@ -37,7 +37,7 @@ from .__version__ import __version__ as version
 # from efb_telegram_master.whitelisthandler import WhitelistHandler
 
 # yaml = YAML()
-c_host = 'https://www.hubi.pub'
+# c_host = 'https://www.hubi.pub'
 
 logging.basicConfig(level='WARN',
                     format='File "%(filename)s", line %(lineno)d | %(asctime)s.%(msecs)03d | %(message)s',
@@ -319,92 +319,92 @@ class TryshMiddleware(Middleware):
     #     return im2  # im2
     #     pass
 
-    def get_coin0(self, coin: str):
-        url = c_host + '/api/ticker/public/convert/raw'
-        parameters = {
-        }
-        headers = {
-        }
-        session = requests.Session()
-        session.headers.update(headers)
-        data = None
-        qus = None
-        raw = None
-        locals()
-        try:
-            response = session.get(url, params=parameters)
-            data = json.loads(response.text)
-            qus = data.get('convert').get('quotes')
-            raw = data.get('raw')
-        except (ConnectionError, requests.Timeout, requests.TooManyRedirects, BaseException) as e:
-            print('http err', e)
-            return
-        session.close()
-
-        rateusdt2btc = 0.0
-        for v in qus:
-            if v.get('from') == 'USDT'.upper() and v.get('to') == 'BTC':
-                rateusdt2btc = v.get('rate')
-                break
-
-        ratebtc2usd = 0.0
-        for v in raw:
-            if v.get('from') == 'BTC' and v.get('to') == 'USD':
-                ratebtc2usd = v.get('rate')
-                break
-
-        ratebtc2cny = 0.0
-        for v in raw:
-            if v.get('from') == 'BTC' and v.get('to') == 'CNY':
-                ratebtc2cny = v.get('rate')
-                break
-
-        # ratebtc2usd = 0.0
-        # for v in raw:
-        #     if v.get('from') == 'BTC' and v.get('to') == 'USD':
-        #         ratebtc2usd = v.get('rate')
-        #         break
-
-        url = c_host + '/api/public/bos/market/trade/list'
-        parameters = {
-            'coin_code': coin,
-            'price_coin_code': 'USDT',
-            'partition_by': '01001'
-        }
-
-        session = requests.Session()
-        try:
-            response = session.get(url, params=parameters)
-            data = json.loads(response.text)
-        except (ConnectionError, requests.Timeout, requests.TooManyRedirects) as e:
-            print('http err', e)
-            return
-        session.close()
-
-        cv = 0.0
-        try:
-            # cv = data.get('trades')[0].get('price')
-            cv = data[0].get('price')
-
-        except Exception as e:
-            print('except:', e)
-        v1 = float(cv) * rateusdt2btc * ratebtc2cny
-        v2 = float(cv)
-        # print(cv, cv * rateusdt2btc * ratebtc2usd)
-        v1 = math.floor(v1 * 1000) / 1000
-        v2 = math.floor(v2 * 10000) / 10000
-        try:
-            v1 = "%.3f" % v1 if v1 < 50 else str(int(v1))
-            v2 = "%.4f" % v2 if v2 < 10 else str(int(v2))
-            # return f"btc:{data.data.BTC.quote.CNY.price} yo:{data.data.YO.quote.CNY.price}"
-            # btcp = int(data.get('data', {}).get('BTC', {}).get('quote', {}).get('CNY', {}).get('price', 0))
-            # ethp = int(data.get('data', {}).get('ETH', {}).get('quote', {}).get('CNY', {}).get('price', 0))
-            # eosp = int(data.get('data', {}).get('EOS', {}).get('quote', {}).get('CNY', {}).get('price', 0))
-            # return f"BTC:{btcp}￥ \nETH:{ethp}￥ \nEOS:{eosp}￥"
-            return v1, v2
-        except (ConnectionError, requests.Timeout, requests.TooManyRedirects, BaseException) as e:
-            self.lg(f"api e:{e}")
-            return ()
+    # def get_coin0(self, coin: str):
+    #     url = c_host + '/api/ticker/public/convert/raw'
+    #     parameters = {
+    #     }
+    #     headers = {
+    #     }
+    #     session = requests.Session()
+    #     session.headers.update(headers)
+    #     data = None
+    #     qus = None
+    #     raw = None
+    #     locals()
+    #     try:
+    #         response = session.get(url, params=parameters)
+    #         data = json.loads(response.text)
+    #         qus = data.get('convert').get('quotes')
+    #         raw = data.get('raw')
+    #     except (ConnectionError, requests.Timeout, requests.TooManyRedirects, BaseException) as e:
+    #         print('http err', e)
+    #         return
+    #     session.close()
+    #
+    #     rateusdt2btc = 0.0
+    #     for v in qus:
+    #         if v.get('from') == 'USDT'.upper() and v.get('to') == 'BTC':
+    #             rateusdt2btc = v.get('rate')
+    #             break
+    #
+    #     ratebtc2usd = 0.0
+    #     for v in raw:
+    #         if v.get('from') == 'BTC' and v.get('to') == 'USD':
+    #             ratebtc2usd = v.get('rate')
+    #             break
+    #
+    #     ratebtc2cny = 0.0
+    #     for v in raw:
+    #         if v.get('from') == 'BTC' and v.get('to') == 'CNY':
+    #             ratebtc2cny = v.get('rate')
+    #             break
+    #
+    #     # ratebtc2usd = 0.0
+    #     # for v in raw:
+    #     #     if v.get('from') == 'BTC' and v.get('to') == 'USD':
+    #     #         ratebtc2usd = v.get('rate')
+    #     #         break
+    #
+    #     url = c_host + '/api/public/bos/market/trade/list'
+    #     parameters = {
+    #         'coin_code': coin,
+    #         'price_coin_code': 'USDT',
+    #         'partition_by': '01001'
+    #     }
+    #
+    #     session = requests.Session()
+    #     try:
+    #         response = session.get(url, params=parameters)
+    #         data = json.loads(response.text)
+    #     except (ConnectionError, requests.Timeout, requests.TooManyRedirects) as e:
+    #         print('http err', e)
+    #         return
+    #     session.close()
+    #
+    #     cv = 0.0
+    #     try:
+    #         # cv = data.get('trades')[0].get('price')
+    #         cv = data[0].get('price')
+    #
+    #     except Exception as e:
+    #         print('except:', e)
+    #     v1 = float(cv) * rateusdt2btc * ratebtc2cny
+    #     v2 = float(cv)
+    #     # print(cv, cv * rateusdt2btc * ratebtc2usd)
+    #     v1 = math.floor(v1 * 1000) / 1000
+    #     v2 = math.floor(v2 * 10000) / 10000
+    #     try:
+    #         v1 = "%.3f" % v1 if v1 < 50 else str(int(v1))
+    #         v2 = "%.4f" % v2 if v2 < 10 else str(int(v2))
+    #         # return f"btc:{data.data.BTC.quote.CNY.price} yo:{data.data.YO.quote.CNY.price}"
+    #         # btcp = int(data.get('data', {}).get('BTC', {}).get('quote', {}).get('CNY', {}).get('price', 0))
+    #         # ethp = int(data.get('data', {}).get('ETH', {}).get('quote', {}).get('CNY', {}).get('price', 0))
+    #         # eosp = int(data.get('data', {}).get('EOS', {}).get('quote', {}).get('CNY', {}).get('price', 0))
+    #         # return f"BTC:{btcp}￥ \nETH:{ethp}￥ \nEOS:{eosp}￥"
+    #         return v1, v2
+    #     except (ConnectionError, requests.Timeout, requests.TooManyRedirects, BaseException) as e:
+    #         self.lg(f"api e:{e}")
+    #         return ()
 
     def get_coin(self, coin: str):
         coinusdt = 0
@@ -428,7 +428,7 @@ class TryshMiddleware(Middleware):
             live = None
             locals()
             try:
-                response = session.get(url, params=parameters)
+                response = session.get(url, params=parameters, proxies={"https": "socks5h://10.0.0.203:11080"})
                 data = json.loads(response.text)
                 # idx = data.get('index', {})
                 # live = data.get('live', {})
@@ -497,7 +497,7 @@ class TryshMiddleware(Middleware):
         dats = None
         locals()
         try:
-            response = session.get(url)
+            response = session.get(url, proxies={"https": "socks5h://10.0.0.203:11080"})
             data = json.loads(response.text)
             dats = data.get('data', [])
         except (ConnectionError, requests.Timeout, requests.TooManyRedirects, BaseException) as e:
