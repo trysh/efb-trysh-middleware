@@ -177,7 +177,8 @@ class TryshMiddleware(Middleware):
             return message
 
         if not message or not message.chat \
-                or 'HUB' in message.chat.__str__().upper():
+                or 'HUB' in message.chat.__str__().upper() \
+                or 'XCLOUD' in message.chat.__str__().upper():
             return message
         # chat:<EFBChat: HUB俱乐部 (7e68e4ef) @ WeChat Slave>
 
@@ -545,6 +546,7 @@ class TryshMiddleware(Middleware):
             "大饼": "btc",
             "比特": "btc",
             "孙总的内裤": "eth",
+            "屎币": "shib",
         }
         mv = cm.get(coin, "")
         if mv != "":
