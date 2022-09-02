@@ -443,7 +443,7 @@ class TryshMiddleware(Middleware):
                 # idx = data.get('index', {})
                 # live = data.get('live', {})
             except (ConnectionError, requests.Timeout, requests.TooManyRedirects, BaseException) as e:
-                print('http err', e)
+                self.lg(f'http err:{e}')
                 return
             session.close()
 
@@ -511,7 +511,7 @@ class TryshMiddleware(Middleware):
             data = json.loads(response.text)
             dats = data.get('data', [])
         except (ConnectionError, requests.Timeout, requests.TooManyRedirects, BaseException) as e:
-            print('http err2', e)
+            self.lg(f'http err2:{e}')
             return
         session.close()
         usdt2cny = 0
@@ -887,7 +887,6 @@ async def tf3a(q: queue.Queue, tm: TryshMiddleware):
                 tm.lg(f'!udp2')
                 cachemsg = tk[1]
         except queue.Empty:
-            # await asyncio.sleep(0.1)
             pass
         except BaseException as e:
             _ = e
@@ -899,7 +898,7 @@ async def tf3a(q: queue.Queue, tm: TryshMiddleware):
         tm.lg(f'start ck')
         gc = tm.get_coin("ETH")
         lastckt = time.time()
-        if len(gc) < 2 or float(gc[1]) <= 0:
+        if not gc or len(gc) < 2 or float(gc[1]) <= 0:
             tm.lg(f'gc:{gc}')
             continue
         gh = int(int(gc[1]) / 100)
@@ -916,4 +915,5 @@ async def tf3a(q: queue.Queue, tm: TryshMiddleware):
             tm.lg(f"gh:{gh} lastgh:{lastgh} gc:{gc}")
             continue
         lastgh = gh
+        await asyncio.sleep(30)
         continue
