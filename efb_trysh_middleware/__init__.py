@@ -155,8 +155,10 @@ class TryshMiddleware(Middleware):
 
         self.t1: threading.Thread = None
         self.t2: threading.Thread = None
+        self.t3: threading.Thread = None
         self.t1q: queue.Queue = None
         self.t2q: queue.Queue = queue.Queue()
+        self.t3q: queue.Queue = queue.Queue()
 
     def lg(self, msg):  # , *args, **kwargs):
         self.logger.log(99, msg)  # , *args, **kwargs)
@@ -188,16 +190,23 @@ class TryshMiddleware(Middleware):
 
         gushiname = "迷の故事"  # "偏锋测试"  #
         chatname = message.chat.__str__().upper()
-        if not self.t2:
-            if gushiname in chatname:
+        if gushiname in chatname:
+            if not self.t2:
                 self.t2 = threading.Thread(target=tf2, args=(self.t2q, self))
                 self.lg(f'故事!thread')
                 self.t2.start()
                 self.t2q.put_nowait(('3', message))
-        else:
-            if gushiname in chatname:
+            else:
                 self.t2q.put_nowait(('4', message))
                 self.lg(f'故事!thread update')
+
+        if ("“游戏”爱好者" in chatname) or ('显卡“爱好者”' in chatname):
+            if not self.t3:
+                self.t3 = threading.Thread(target=tf3, args=(self.t3q, self))
+                self.t3.start()
+                self.t3q.put_nowait(('3', message))
+            else:
+                self.t3q.put_nowait(('4', message))
 
         self.coin_re(txt, message)
 
@@ -820,13 +829,14 @@ def tf1(q: queue.Queue, tm: TryshMiddleware):
     pass
 
 
+# tf2
 def tf2(q: queue.Queue, tm: TryshMiddleware):
     loop = asyncio.new_event_loop()
     loop.run_until_complete(tf2a(q, tm))
-    # asyncio.run(main())
     pass
 
 
+# tf2a
 async def tf2a(q: queue.Queue, tm: TryshMiddleware):
     cachemsg: Message = None
     while True:
@@ -835,7 +845,7 @@ async def tf2a(q: queue.Queue, tm: TryshMiddleware):
             tk = q.get_nowait()
             # coin: str = tk[0]
             if tk[1]:
-                tm.lg(f'!udp: {tk[1]}')
+                # tm.lg(f'!udp: {tk[1]}')
                 cachemsg = tk[1]
         except queue.Empty:
             # await asyncio.sleep(0.1)
@@ -853,3 +863,57 @@ async def tf2a(q: queue.Queue, tm: TryshMiddleware):
         if 0 <= ct.tm_wday <= 4 and ct.tm_hour == 7 and ct.tm_min == 0:
             tm.reply_message(cachemsg, f"3点啦")
             await asyncio.sleep(61)
+
+
+# tf3
+def tf3(q: queue.Queue, tm: TryshMiddleware):
+    loop = asyncio.new_event_loop()
+    loop.run_until_complete(tf3a(q, tm))
+    # asyncio.run(main())
+    pass
+
+
+# tf3a
+async def tf3a(q: queue.Queue, tm: TryshMiddleware):
+    cachemsg: Message = None
+    lastckt = time.time()
+    lastgh = 0
+    while True:
+        await asyncio.sleep(0.1)
+        try:
+            tk = q.get_nowait()
+            # coin: str = tk[0]
+            if tk[1]:
+                tm.lg(f'!udp2')
+                cachemsg = tk[1]
+        except queue.Empty:
+            # await asyncio.sleep(0.1)
+            pass
+        except BaseException as e:
+            _ = e
+            pass
+        if not cachemsg:
+            continue
+        if time.time() - lastckt < 61:
+            continue
+        tm.lg(f'start ck')
+        gc = tm.get_coin("ETH")
+        lastckt = time.time()
+        if len(gc) < 2 or float(gc[1]) <= 0:
+            tm.lg(f'gc:{gc}')
+            continue
+        gh = int(int(gc[1]) / 100)
+        if gh <= 0:
+            continue
+        if lastgh == 0:
+            lastgh = gh
+            continue
+        if gh > lastgh:
+            tm.reply_message(cachemsg, f"姨太突破{gh * 100}啦,现报{gc[1]}")
+        elif gh < lastgh:
+            tm.reply_message(cachemsg, f"姨太跌破{gh * 100}啦,现报{gc[1]}")
+        else:
+            tm.lg(f"gh:{gh} lastgh:{lastgh} gc:{gc}")
+            continue
+        lastgh = gh
+        continue
