@@ -909,8 +909,10 @@ async def tf3a(q: queue.Queue, tm: TryshMiddleware):
             continue
         if gh > lastgh:
             tm.reply_message(cachemsg, f"姨太突破{gh * 100}啦,现报{gc[1]}")
+            await asyncio.sleep(3600)
         elif gh < lastgh:
             tm.reply_message(cachemsg, f"姨太跌破{lastgh * 100}啦,现报{gc[1]}")
+            await asyncio.sleep(3600)
         else:
             tm.lg(f"gh:{gh} lastgh:{lastgh} gc:{gc}")
             continue
