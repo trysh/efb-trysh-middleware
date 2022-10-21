@@ -452,6 +452,27 @@ class TryshMiddleware(Middleware):
             coinusdt = float(data.get("price", "0"))
             # usdcny = live.get("USDCNY", 0)
 
+        if coinusdt == 0:
+            url = 'https://pro-api.coinmarketcap.com/v2/cryptocurrency/quotes/latest'
+            parameters = {
+                "symbol": coin.upper()
+            }
+            headers = {
+                "X-CMC_PRO_API_KEY": "04d33514-9e00-40d3-8ff9-3c501ffae1ef"
+            }
+            session = requests.Session()
+            session.headers.update(headers)
+            data = None
+            locals()
+            try:
+                response = session.get(url, params=parameters, proxies={"https": "socks5h://10.0.0.203:11080"})
+                data = json.loads(response.text)
+            except (ConnectionError, requests.Timeout, requests.TooManyRedirects, BaseException) as e:
+                self.lg(f'http err:{e}')
+                return
+            session.close()
+            coinusdt = data.get("data", {}).get(coin.upper(), [{}])[0].get("quote", {}).get("USD", {}).get("price", 0)
+
         # # https://www.huobi.com/-/x/general/exchange_rate/list
         # url = 'https://www.huobi.com/-/x/general/exchange_rate/list'
         # parameters = {
