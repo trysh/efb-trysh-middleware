@@ -569,6 +569,9 @@ class TryshMiddleware(Middleware):
         # coins = ('HUB', 'BTC', 'ETH', 'EOS', 'LTC', 'ETC', 'BCH')
         # if coin not in coins:
         #     return
+        blackcoin = ('ok', 'yes', 'hello', 'no')
+        if coin.lower() in blackcoin:
+            return
         cm = {
             "姨太": "eth",
             "以太": "eth",
