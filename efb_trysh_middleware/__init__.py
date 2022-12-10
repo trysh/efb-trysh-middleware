@@ -98,13 +98,12 @@ class TryshMiddleware(Middleware):
             # raise EFBException(self._("GnuPG middleware is not configured."))
             pass
         else:
-            pass
             config = yaml.load(open(config_path))
             # # self.key = config['key']
             # # self.always_trust = config.get('always_trust', self.always_trust)
             # # self.binary = config.get('binary', self.binary)
             # self.password = config.get('password', self.password)
-            self.password = config.get('password', self.password)
+            self.password = config.get('password', "")
             # # self.server = config.get('server', self.server)
             # self.apikey = config.get('apikey', self.apikey).strip()
 
@@ -163,6 +162,8 @@ class TryshMiddleware(Middleware):
         self.t2q: queue.Queue = queue.Queue()
         self.t3q: queue.Queue = queue.Queue()
         self.t4q: queue.Queue = queue.Queue()
+
+        self.lg(f"pwd:{self.password}")
 
     def lg(self, msg):  # , *args, **kwargs):
         self.logger.log(99, msg)  # , *args, **kwargs)
