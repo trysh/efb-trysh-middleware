@@ -994,10 +994,11 @@ async def tf4a(q: queue.Queue, tm: TryshMiddleware):
                 "proxy": "http://127.0.0.1:8899"
             }
             chatbot = Chatbot(config, conversation_id=None)
+            tm.lg("tf4a 997")
             message = (await chatbot.get_chat_response(txt))['message']
             tm.lg(f"gpt re:{message}")
             tm.reply_message(cachemsg, f"AI：{message}")
         except BaseException as e:
-            _ = e
+            tm.lg(f"tf4a e:{e}")
             pass
         continue
