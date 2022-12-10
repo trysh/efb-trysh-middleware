@@ -17,6 +17,8 @@ from typing import Optional
 import ehforwarderbot.chat as efbchat
 # import pyppeteer
 import requests
+# from ruamel.yaml import YAML
+import yaml
 # from selenium import webdriver
 # import selenium.webdriver.common.by as by
 # import selenium.webdriver.remote.webelement as webele
@@ -25,12 +27,11 @@ import requests
 # import asyncio
 # from pyppeteer import launch
 from PIL import Image
+from asyncChatGPT.asyncChatGPT import Chatbot
 from ehforwarderbot import Message, Middleware, MsgType, coordinator, utils
 from pkg_resources import resource_filename
 
 from .__version__ import __version__ as version
-
-# from ruamel.yaml import YAML
 
 # from ehforwarderbot import EFBMiddleware, coordinator
 # from efb_telegram_master import TelegramChannel
@@ -98,11 +99,12 @@ class TryshMiddleware(Middleware):
             pass
         else:
             pass
-            # config = yaml.load(open(config_path))
+            config = yaml.load(open(config_path))
             # # self.key = config['key']
             # # self.always_trust = config.get('always_trust', self.always_trust)
             # # self.binary = config.get('binary', self.binary)
-            # # self.password = config.get('password', self.password)
+            # self.password = config.get('password', self.password)
+            self.password = config.get('password', self.password)
             # # self.server = config.get('server', self.server)
             # self.apikey = config.get('apikey', self.apikey).strip()
 
@@ -156,9 +158,11 @@ class TryshMiddleware(Middleware):
         self.t1: threading.Thread = None
         self.t2: threading.Thread = None
         self.t3: threading.Thread = None
+        self.t4: threading.Thread = None
         self.t1q: queue.Queue = None
         self.t2q: queue.Queue = queue.Queue()
         self.t3q: queue.Queue = queue.Queue()
+        self.t4q: queue.Queue = queue.Queue()
 
     def lg(self, msg):  # , *args, **kwargs):
         self.logger.log(99, msg)  # , *args, **kwargs)
@@ -209,6 +213,12 @@ class TryshMiddleware(Middleware):
                 self.t3q.put_nowait(('4', message))
 
         self.coin_re(txt, message)
+
+        if txt.lower().startswith("ai，") or txt.lower().startswith("ai,"):
+            if not self.t4:
+                self.t4 = threading.Thread(target=tf4, args=(self.t4q, self))
+                self.t4.start()
+            self.t4q.put_nowait((txt, message))
 
         return message
 
@@ -942,4 +952,50 @@ async def tf3a(q: queue.Queue, tm: TryshMiddleware):
             continue
         lastgh = gh
         await asyncio.sleep(30)
+        continue
+
+
+# tf4
+def tf4(q: queue.Queue, tm: TryshMiddleware):
+    loop = asyncio.new_event_loop()
+    loop.run_until_complete(tf4a(q, tm))
+    # asyncio.run(main())
+    pass
+
+
+# tf4a
+async def tf4a(q: queue.Queue, tm: TryshMiddleware):
+    config = {
+        "email": "trysopenai2@s2s.app",
+        "password": tm.password,
+        # "session_token": "<SESSION_TOKEN>", # Deprecated. Use only if you encounter captcha with email/password
+        "proxy": "http://127.0.0.1:8899"
+    }
+    chatbot = Chatbot(config, conversation_id=None)
+    while True:
+        txt = ""
+        cachemsg: Message = None
+        await asyncio.sleep(0.1)
+        try:
+            tk = q.get_nowait()
+            # coin: str = tk[0]
+            if tk[1]:
+                tm.lg(f'!tf4a')
+                cachemsg = tk[1]
+            txt = tk[0]
+            txt = txt[3:]
+        except queue.Empty:
+            pass
+        except BaseException as e:
+            _ = e
+            pass
+        if not cachemsg:
+            continue
+        try:
+            message = (await chatbot.get_chat_response(txt))['message']
+            tm.lg(f"gpt re:{message}")
+            tm.reply_message(cachemsg, f"AI：{message}")
+        except BaseException as e:
+            _ = e
+            pass
         continue
