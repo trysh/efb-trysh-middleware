@@ -972,7 +972,7 @@ async def tf4a(q: queue.Queue, tm: TryshMiddleware):
         # "session_token": "<SESSION_TOKEN>", # Deprecated. Use only if you encounter captcha with email/password
         "proxy": "http://127.0.0.1:8899"
     }
-    chatbot = Chatbot(config, conversation_id=None)
+    chatbot = Chatbot(config, conversation_id=None, request_timeout=99)
     tm.lg("tf4a createcb")
     while True:
         txt = ""
@@ -994,11 +994,13 @@ async def tf4a(q: queue.Queue, tm: TryshMiddleware):
         if not cachemsg:
             continue
         tm.lg(f'!tf4a:{txt}')
-        try:
-            message = (await chatbot.get_chat_response(txt))['message']
-            tm.lg(f"tf4a re:{message}")
-            tm.reply_message(cachemsg, f"AI：{message}")
-        except BaseException as e:
-            tm.lg(f"tf4a e:{e}")
-            pass
+        while True:
+            try:
+                message = (await chatbot.get_chat_response(txt))['message']
+                tm.lg(f"tf4a re:{message}")
+                tm.reply_message(cachemsg, f"AI：{message}")
+                break
+            except BaseException as e:
+                tm.lg(f"tf4a e:{e},{type(e)},{repr(e)},{str(e)}")
+                continue
         continue
