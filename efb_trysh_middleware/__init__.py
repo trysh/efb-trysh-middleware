@@ -966,13 +966,6 @@ def tf4(q: queue.Queue, tm: TryshMiddleware):
 
 # tf4a
 async def tf4a(q: queue.Queue, tm: TryshMiddleware):
-    config = {
-        "email": "trysopenai2@s2s.app",
-        "password": tm.password,
-        # "session_token": "<SESSION_TOKEN>", # Deprecated. Use only if you encounter captcha with email/password
-        "proxy": "http://127.0.0.1:8899"
-    }
-    chatbot = Chatbot(config, conversation_id=None)
     while True:
         txt = ""
         cachemsg: Message = None
@@ -992,7 +985,15 @@ async def tf4a(q: queue.Queue, tm: TryshMiddleware):
             pass
         if not cachemsg:
             continue
+        tm.lg(f'!tf4a:{txt}')
         try:
+            config = {
+                "email": "trysopenai2@s2s.app",
+                "password": tm.password,
+                # "session_token": "<SESSION_TOKEN>", # Deprecated. Use only if you encounter captcha with email/password
+                "proxy": "http://127.0.0.1:8899"
+            }
+            chatbot = Chatbot(config, conversation_id=None)
             message = (await chatbot.get_chat_response(txt))['message']
             tm.lg(f"gpt re:{message}")
             tm.reply_message(cachemsg, f"AI：{message}")
