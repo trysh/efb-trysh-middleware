@@ -17,8 +17,7 @@ from typing import Optional
 import ehforwarderbot.chat as efbchat
 # import pyppeteer
 import requests
-# from ruamel.yaml import YAML
-import yaml
+# import yaml
 # from selenium import webdriver
 # import selenium.webdriver.common.by as by
 # import selenium.webdriver.remote.webelement as webele
@@ -30,6 +29,7 @@ from PIL import Image
 from asyncChatGPT.asyncChatGPT import Chatbot
 from ehforwarderbot import Message, Middleware, MsgType, coordinator, utils
 from pkg_resources import resource_filename
+from ruamel.yaml import YAML
 
 from .__version__ import __version__ as version
 
@@ -37,7 +37,7 @@ from .__version__ import __version__ as version
 # from efb_telegram_master import TelegramChannel
 # from efb_telegram_master.whitelisthandler import WhitelistHandler
 
-# yaml = YAML()
+yaml = YAML()
 # c_host = 'https://www.hubi.pub'
 
 logging.basicConfig(level='WARN',
