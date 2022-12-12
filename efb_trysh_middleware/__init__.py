@@ -994,7 +994,7 @@ async def tf4a(q: queue.Queue, tm: TryshMiddleware):
         if not cachemsg:
             continue
         tm.lg(f'!tf4a:{txt}')
-        while True:
+        for _ in range(2):
             try:
                 message = (await chatbot.get_chat_response(txt))['message']
                 tm.lg(f"tf4a re:{message}")
@@ -1002,5 +1002,7 @@ async def tf4a(q: queue.Queue, tm: TryshMiddleware):
                 break
             except BaseException as e:
                 tm.lg(f"tf4a e:{e},{type(e)},{repr(e)},{str(e)}")
+                chatbot = Chatbot(config, conversation_id=None, request_timeout=99)
+                tm.lg("tf4a createcbb")
                 continue
         continue
