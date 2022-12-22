@@ -215,11 +215,11 @@ class TryshMiddleware(Middleware):
 
         self.coin_re(txt, message)
 
-        if txt.lower().startswith("ai，") or txt.lower().startswith("ai,"):
-            if not self.t4:
-                self.t4 = threading.Thread(target=tf4, args=(self.t4q, self))
-                self.t4.start()
-            self.t4q.put_nowait((txt, message))
+        # if txt.lower().startswith("ai，") or txt.lower().startswith("ai,"):
+        #     if not self.t4:
+        #         self.t4 = threading.Thread(target=tf4, args=(self.t4q, self))
+        #         self.t4.start()
+        #     self.t4q.put_nowait((txt, message))
 
         return message
 
