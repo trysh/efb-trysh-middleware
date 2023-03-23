@@ -916,44 +916,48 @@ async def tf3a(q: queue.Queue, tm: TryshMiddleware):
     while True:
         await asyncio.sleep(0.1)
         try:
-            tk = q.get_nowait()
-            # coin: str = tk[0]
-            if tk[1]:
-                tm.lg(f'!udp2')
-                cachemsg = tk[1]
-        except queue.Empty:
-            pass
+            try:
+                tk = q.get_nowait()
+                # coin: str = tk[0]
+                if tk[1]:
+                    tm.lg(f'!udp2')
+                    cachemsg = tk[1]
+            except queue.Empty:
+                pass
+            except BaseException as e:
+                _ = e
+                pass
+            if not cachemsg:
+                continue
+            if time.time() - lastckt < 61:
+                continue
+            tm.lg(f'start ck')
+            gc = tm.get_coin("ETH")
+            lastckt = time.time()
+            if not gc or len(gc) < 2 or float(gc[1]) <= 0:
+                tm.lg(f'gc:{gc}')
+                continue
+            gh = int(int(gc[1]) / 100)
+            if gh <= 0:
+                continue
+            if lastgh == 0:
+                lastgh = gh
+                continue
+            if gh > lastgh:
+                tm.reply_message(cachemsg, f"姨太突破{gh * 100}啦,现报{gc[1]}")
+                await asyncio.sleep(3600)
+            elif gh < lastgh:
+                tm.reply_message(cachemsg, f"姨太跌破{lastgh * 100}啦,现报{gc[1]}")
+                await asyncio.sleep(3600)
+            else:
+                tm.lg(f"gh:{gh} lastgh:{lastgh} gc:{gc}")
+                continue
+            lastgh = gh
+            await asyncio.sleep(30)
+            continue
         except BaseException as e:
             _ = e
             pass
-        if not cachemsg:
-            continue
-        if time.time() - lastckt < 61:
-            continue
-        tm.lg(f'start ck')
-        gc = tm.get_coin("ETH")
-        lastckt = time.time()
-        if not gc or len(gc) < 2 or float(gc[1]) <= 0:
-            tm.lg(f'gc:{gc}')
-            continue
-        gh = int(int(gc[1]) / 100)
-        if gh <= 0:
-            continue
-        if lastgh == 0:
-            lastgh = gh
-            continue
-        if gh > lastgh:
-            tm.reply_message(cachemsg, f"姨太突破{gh * 100}啦,现报{gc[1]}")
-            await asyncio.sleep(3600)
-        elif gh < lastgh:
-            tm.reply_message(cachemsg, f"姨太跌破{lastgh * 100}啦,现报{gc[1]}")
-            await asyncio.sleep(3600)
-        else:
-            tm.lg(f"gh:{gh} lastgh:{lastgh} gc:{gc}")
-            continue
-        lastgh = gh
-        await asyncio.sleep(30)
-        continue
 
 
 # tf4
